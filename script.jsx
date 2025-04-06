@@ -303,7 +303,7 @@ function App() {
           <div className="py-12">
             <Card className="menu-card p-8">
               <div className="flex flex-col items-center gap-8 text-center">
-                <h1 className="fancy-title">De cá pra lá</h1>
+                <h1 className="fancy-title">5CLIQUES</h1>
                 <p className="text-lg text-gray-700">
                   Conecte dois artigos da Wikipedia em 5 cliques ou menos!
                 </p>

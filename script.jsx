@@ -161,7 +161,7 @@ const checkPathPossibility = async (startArticle, endArticle, maxClicks = 5, min
 
 // Função para gerar um par válido de artigos mais criativo
 const generateValidPair = async () => {
-  const maxAttempts = 15; // Aumentado para ter mais chances de encontrar pares interessantes
+  const maxAttempts = 15;
   let attempts = 0;
   
   while (attempts < maxAttempts) {
@@ -173,7 +173,7 @@ const generateValidPair = async () => {
       const sourceTopic = contrastingPair.source[Math.floor(Math.random() * contrastingPair.source.length)];
       const targetTopic = contrastingPair.target[Math.floor(Math.random() * contrastingPair.target.length)];
       
-      // Obter links para os tópicos
+      // Obter links para os tópicos e verificar se são artigos pt-br válidos
       const sourceLinks = await getWikipediaLinks(sourceTopic);
       const targetLinks = await getWikipediaLinks(targetTopic);
       
@@ -182,27 +182,37 @@ const generateValidPair = async () => {
         continue;
       }
       
-      // Escolher artigos aleatórios dos links
-      const startArticle = sourceLinks[Math.floor(Math.random() * sourceLinks.length)];
-      const endArticle = targetLinks[Math.floor(Math.random() * targetLinks.length)];
+      // Filtrar apenas artigos que não são redirecionamentos e são pt-br
+      const validSourceLinks = sourceLinks.filter(link => !link.title.includes(':') && !link.redirect);
+      const validTargetLinks = targetLinks.filter(link => !link.title.includes(':') && !link.redirect);
       
-      if (!startArticle || !endArticle) {
+      if (validSourceLinks.length === 0 || validTargetLinks.length === 0) {
         attempts++;
         continue;
       }
+      
+      // Escolher artigos aleatórios dos links válidos
+      const startArticle = validSourceLinks[Math.floor(Math.random() * validSourceLinks.length)];
+      const endArticle = validTargetLinks[Math.floor(Math.random() * validTargetLinks.length)];
       
       // Verificar se o caminho é possível e está dentro dos limites
       const pathResult = await checkPathPossibility(startArticle.title, endArticle.title);
       
       if (pathResult.possible) {
-        return {
-          start: startArticle.title,
-          startDisplay: startArticle.displayTitle,
-          end: endArticle.title,
-          endDisplay: endArticle.displayTitle,
-          difficulty: pathResult.clicks <= 3 ? "easy" : pathResult.clicks === 4 ? "medium" : "hard",
-          expectedClicks: pathResult.clicks
-        };
+        // Obter os displayTitles corretos dos artigos
+        const startInfo = await getArticleInfo(startArticle.title);
+        const endInfo = await getArticleInfo(endArticle.title);
+        
+        if (startInfo && endInfo) {
+          return {
+            start: startArticle.title,
+            startDisplay: startInfo.displayTitle,
+            end: endArticle.title,
+            endDisplay: endInfo.displayTitle,
+            difficulty: pathResult.clicks <= 3 ? "easy" : pathResult.clicks === 4 ? "medium" : "hard",
+            expectedClicks: pathResult.clicks
+          };
+        }
       }
     } catch (error) {
       console.error("Erro ao gerar par:", error);
@@ -211,7 +221,7 @@ const generateValidPair = async () => {
     attempts++;
   }
   
-  // Se falhar em gerar um par válido, usar um par de backup com links garantidos
+  // Se falhar em gerar um par válido, usar um par de backup
   return {
     start: "Brasil",
     startDisplay: "Brasil",
@@ -496,7 +506,9 @@ function App() {
   const [darkMode, setDarkMode] = React.useState(false);
   const [gameState, setGameState] = React.useState({
     startArticle: "",
+    startDisplay: "",
     endArticle: "",
+    endDisplay: "",
     clicksLeft: 5,
     path: [],
     isComplete: false,
@@ -624,7 +636,9 @@ function App() {
     setShowMenu(true);
     setGameState({
       startArticle: "",
+      startDisplay: "",
       endArticle: "",
+      endDisplay: "",
       clicksLeft: 5,
       path: [],
       isComplete: false,
@@ -640,7 +654,9 @@ function App() {
       const pair = await generateValidPair();
       setGameState({
         startArticle: pair.start,
+        startDisplay: pair.startDisplay,
         endArticle: pair.end,
+        endDisplay: pair.endDisplay,
         clicksLeft: 5,
         path: [{
           title: pair.start,
@@ -656,16 +672,20 @@ function App() {
       // Usar um par de backup em caso de erro
       const backupPair = {
         start: "Brasil",
+        startDisplay: "Brasil",
         end: "Ciência",
+        endDisplay: "Ciência",
         difficulty: "medium"
       };
       setGameState({
         startArticle: backupPair.start,
+        startDisplay: backupPair.startDisplay,
         endArticle: backupPair.end,
+        endDisplay: backupPair.endDisplay,
         clicksLeft: 5,
         path: [{
           title: backupPair.start,
-          displayTitle: backupPair.start
+          displayTitle: backupPair.startDisplay
         }],
         isComplete: false,
         showCelebration: false
@@ -924,12 +944,12 @@ function App() {
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 badge">
                   <BookOpen size={20} weight="bold" className="text-primary" />
-                  <span>De: <strong>{normalizeString(gameState.startArticle)}</strong></span>
+                  <span>De: <strong>{gameState.startDisplay || gameState.startArticle}</strong></span>
                 </div>
                 <ArrowRight size={20} className="text-gray-700" />
                 <div className="flex items-center gap-2 badge">
                   <Brain size={20} weight="bold" className="text-secondary" />
-                  <span>Para: <strong>{normalizeString(gameState.endArticle)}</strong></span>
+                  <span>Para: <strong>{gameState.endDisplay || gameState.endArticle}</strong></span>
                 </div>
               </div>
               

@@ -539,26 +539,11 @@ button {
   border-top: 1px solid var(--color-border);
 }
 
-.combinations-counter {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-  color: white;
-  padding: 1rem 2rem;
-  border-radius: var(--radius-lg);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: var(--shadow-md);
-}
-
-.counter-value {
-  font-size: 2.5rem;
-  font-weight: 800;
-  line-height: 1;
-}
-
+/* Removendo as classes do contador que não são mais necessárias */
+.combinations-counter,
+.counter-value,
 .counter-label {
-  font-size: var(--font-size-sm);
-  opacity: 0.8;
+  display: none;
 }
 
 .creator-info {

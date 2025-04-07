@@ -130,6 +130,7 @@ body {
   overflow: hidden;
   position: relative;
   transition: background-color var(--transition-speed) ease;
+  animation: menuAppear 0.8s ease-out forwards;
 }
 
 .menu-card::before {
@@ -153,6 +154,7 @@ body {
   background-clip: text;
   color: transparent;
   position: relative;
+  animation: titlePulse 3s infinite ease-in-out;
 }
 
 .fancy-title::after {
@@ -165,6 +167,7 @@ body {
   transform: translateX(-50%);
   background: var(--gradient-fancy);
   border-radius: var(--border-radius-lg);
+  animation: underlineGrow 3s infinite ease-in-out;
 }
 
 /* Botões estilizados */
@@ -257,6 +260,7 @@ body {
   box-shadow: var(--shadow-md);
   transition: background-color var(--transition-speed) ease;
   border: 1px solid var(--color-border);
+  animation: fadeIn 0.5s ease-out forwards;
 }
 
 .theme-switch-button {
@@ -282,6 +286,53 @@ body {
 
 .dark-theme .theme-switch-button:hover {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Combinações disponíveis badge */
+.combinations-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-primary);
+  color: white;
+  padding: 1rem;
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+  width: 80%;
+  max-width: 300px;
+  animation: pulsateGlow 2.5s infinite alternate;
+}
+
+.combinations-badge::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  animation: rotateGlow 10s linear infinite;
+}
+
+.combinations-count {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+  position: relative;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  animation: countPop 0.5s ease-out forwards;
+}
+
+.combinations-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0.9;
+  position: relative;
 }
 
 /* Animações */
@@ -321,6 +372,69 @@ body {
 @keyframes rotate {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@keyframes menuAppear {
+  0% { opacity: 0; transform: scale(0.95); }
+  70% { transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes titlePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+@keyframes underlineGrow {
+  0% { width: 60px; }
+  50% { width: 120px; }
+  100% { width: 60px; }
+}
+
+@keyframes pulsateGlow {
+  0% { box-shadow: 0 0 5px rgba(67, 97, 238, 0.3), 0 5px 15px rgba(67, 97, 238, 0.3); }
+  100% { box-shadow: 0 0 20px rgba(67, 97, 238, 0.5), 0 5px 25px rgba(67, 97, 238, 0.5); }
+}
+
+@keyframes rotateGlow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes countPop {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes animate-float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes animate-appear {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes animate-pulse-subtle {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); box-shadow: 0 6px 20px rgba(67, 97, 238, 0.5); }
+  100% { transform: scale(1); }
+}
+
+.animate-float {
+  animation: animate-float 3s ease-in-out infinite;
+}
+
+.animate-appear {
+  animation: animate-appear 0.5s ease-out forwards;
+}
+
+.animate-pulse-subtle {
+  animation: animate-pulse-subtle 2s infinite;
 }
 
 .fade-in {
@@ -731,6 +845,15 @@ body {
     margin: 1em 0;
     max-width: 100%;
   }
+  
+  .combinations-badge {
+    width: 100%;
+    max-width: 260px;
+  }
+  
+  .combinations-count {
+    font-size: 2rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -754,6 +877,14 @@ body {
   .theme-switch-button {
     width: 2rem;
     height: 2rem;
+  }
+  
+  .combinations-badge {
+    padding: 0.75rem;
+  }
+  
+  .combinations-count {
+    font-size: 1.75rem;
   }
 }
 

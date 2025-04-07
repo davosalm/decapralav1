@@ -367,6 +367,75 @@ button {
   border-radius: var(--radius-sm);
 }
 
+/* Contador de cliques destacado */
+.clicks-counter {
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 0.75rem;
+  padding: 0.25rem;
+  box-shadow: var(--shadow-md);
+  animation: pulse 2s infinite;
+}
+
+.clicks-counter-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 2px dashed rgba(255, 255, 255, 0.5);
+  border-radius: 0.5rem;
+}
+
+.clicks-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  min-width: 2.5rem;
+  text-align: center;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.clicks-label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+/* Notificação de redirecionamento */
+.wiki-redirect-notice {
+  background-color: #fff3cd;
+  border-left: 4px solid #ffc107;
+  color: #856404;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: var(--radius-sm);
+}
+
+.wiki-redirect-notice h2 {
+  margin: 0 0 0.5rem 0;
+  color: #856404;
+  font-size: 1.25rem;
+}
+
+.wiki-redirect-notice p {
+  margin: 0;
+}
+
+/* Tema escuro para os novos elementos */
+.dark-theme .clicks-counter {
+  background-color: var(--color-primary-dark);
+}
+
+.dark-theme .wiki-redirect-notice {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #f9d71c;
+  border-left-color: #f9d71c;
+}
+
+.dark-theme .wiki-redirect-notice h2 {
+  color: #f9d71c;
+}
+
 .game-stats {
   display: flex;
   align-items: center;

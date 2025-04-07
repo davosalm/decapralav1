@@ -85,10 +85,14 @@ const getArticleInfo = async (title) => {
     div.innerHTML = data.parse.displaytitle;
     const displayTitle = div.textContent || div.innerText || title;
     
+    // Verificar se é um redirecionamento
+    const isRedirect = data.parse.text && data.parse.text["*"] && 
+                      data.parse.text["*"].includes('class="redirectText"');
+    
     return {
       title: title,
       displayTitle: displayTitle,
-      titleForComparison: normalizeStringForComparison(displayTitle),
+      isRedirect: isRedirect,
       isValid: true
     };
   } catch (error) {
@@ -97,134 +101,43 @@ const getArticleInfo = async (title) => {
   }
 };
 
-// Função melhorada para normalizar strings para comparação
-const normalizeStringForComparison = (str) => {
-  if (!str) return '';
-  
+// Função para comparar títulos de artigos preservando acentuação
+const checkArticleMatch = (currentArticleTitle, targetArticleTitle) => {
   try {
-    // Converter para minúsculas
-    let normalized = str.toLowerCase();
+    // Se algum dos títulos é nulo ou indefinido, retornar falso
+    if (!currentArticleTitle || !targetArticleTitle) {
+      return false;
+    }
     
-    // Substituir underscores por espaços
-    normalized = normalized.replace(/_/g, ' ');
-    
-    // Remover acentos para comparação
-    normalized = normalized.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    
-    // Remover caracteres especiais e pontuação
-    normalized = normalized.replace(/[^\w\s]/g, '');
-    
-    // Remover espaços extras
-    normalized = normalized.trim().replace(/\s+/g, ' ');
-    
-    return normalized;
-  } catch (e) {
-    console.error("Erro ao normalizar string:", e);
-    return str.toLowerCase().trim();
-  }
-};
-
-// Função para verificar se dois títulos de artigos correspondem - versão super flexível
-const checkArticleMatch = (currentArticle, targetArticle) => {
-  try {
-    // Obter as versões normalizadas dos títulos para comparação
-    const current = normalizeStringForComparison(currentArticle);
-    const target = normalizeStringForComparison(targetArticle);
+    // Remover espaços extras e converter para minúsculas (preservando acentos)
+    const current = currentArticleTitle.toLowerCase().trim();
+    const target = targetArticleTitle.toLowerCase().trim();
     
     console.log("Comparando artigos:");
-    console.log("- Atual (normalizado):", current);
-    console.log("- Alvo (normalizado):", target);
+    console.log("- Atual:", current);
+    console.log("- Alvo:", target);
     
-    // 1. Verificar correspondência exata após normalização
+    // Verificar correspondência exata (preservando acentuação)
     if (current === target) {
       console.log("✓ Correspondência exata");
       return true;
     }
     
-    // 2. Verificar se um é substring do outro (para casos como "Via Láctea" vs "Via Lactea")
-    if ((current.includes(target) || target.includes(current)) &&
-        Math.min(current.length, target.length) > 3) {
-      console.log("✓ Substring significativa encontrada");
+    // Verificar após remover underscores ou substituir por espaços
+    const currentNoUnderscore = current.replace(/_/g, ' ');
+    const targetNoUnderscore = target.replace(/_/g, ' ');
+    
+    if (currentNoUnderscore === targetNoUnderscore) {
+      console.log("✓ Correspondência após normalizar underscores");
       return true;
     }
     
-    // 3. Verificar palavras em comum
-    const currentWords = current.split(' ');
-    const targetWords = target.split(' ');
+    // Verificar após remover parênteses e conteúdo entre parênteses
+    const currentNoParentheses = currentNoUnderscore.replace(/\s*\([^)]*\)/g, '').trim();
+    const targetNoParentheses = targetNoUnderscore.replace(/\s*\([^)]*\)/g, '').trim();
     
-    // Se ambos têm múltiplas palavras, verificar se compartilham palavras significativas
-    if (currentWords.length > 1 && targetWords.length > 1) {
-      const commonWords = currentWords.filter(word => 
-        word.length > 3 && targetWords.includes(word)
-      );
-      
-      if (commonWords.length > 0 && 
-          commonWords.length >= Math.min(currentWords.length, targetWords.length) / 2) {
-        console.log("✓ Palavras significativas em comum:", commonWords);
-        return true;
-      }
-    }
-    
-    // 4. Verificar o caso específico de "Via Láctea" vs "Via Lactea"
-    const viaLacteaVariations = ['via lactea', 'galaxia via lactea', 'via láctea', 'galaxia via láctea'];
-    if (viaLacteaVariations.includes(current) && viaLacteaVariations.includes(target)) {
-      console.log("✓ Caso específico de Via Láctea");
-      return true;
-    }
-    
-    // 5. Verificar algumas variações comuns específicas
-    const variations = {
-      'via lactea': ['via láctea', 'galaxia via lactea', 'nossa galaxia'],
-      'galaxia': ['galaxias', 'via lactea', 'via láctea'],
-      'crimeia': ['crimea', 'crimeia'],
-      'uniao sovietica': ['urss', 'uniao sovietica'],
-      'estados unidos': ['eua', 'usa', 'america'],
-      'america': ['estados unidos', 'eua'],
-      'brasil': ['republica federativa do brasil'],
-      'franca': ['republica francesa', 'frança'],
-      'reino unido': ['gra bretanha', 'inglaterra'],
-      'alemanha': ['republica federal da alemanha'],
-      'japao': ['imperio do japao', 'japão'],
-      'china': ['republica popular da china'],
-      'russia': ['federacao russa', 'rússia'],
-      'exercito': ['forcas armadas', 'exército'],
-      'futebol': ['soccer', 'calcio'],
-      'historia': ['cronologia', 'história'],
-      'geografia': ['geopolitica', 'geografia'],
-      'primeira guerra mundial': ['grande guerra'],
-      'segunda guerra mundial': ['guerra mundial']
-    };
-    
-    // Verificar variações em ambas as direções
-    for (const [base, aliases] of Object.entries(variations)) {
-      if ((current.includes(base) && aliases.some(a => target.includes(a))) ||
-          (target.includes(base) && aliases.some(a => current.includes(a)))) {
-        console.log("✓ Variação específica encontrada");
-        return true;
-      }
-    }
-    
-    // 6. Calcular similaridade baseada em caracteres comuns
-    const calculateSimilarity = (s1, s2) => {
-      let commonChars = 0;
-      const minLength = Math.min(s1.length, s2.length);
-      
-      // Se os comprimentos são muito diferentes, provavelmente não são o mesmo
-      if (Math.max(s1.length, s2.length) > minLength * 2) {
-        return 0;
-      }
-      
-      for (let i = 0; i < s1.length; i++) {
-        if (s2.includes(s1[i])) commonChars++;
-      }
-      
-      return commonChars / Math.max(s1.length, s2.length);
-    };
-    
-    // Se a similaridade é alta o suficiente
-    const similarity = calculateSimilarity(current, target);
-    if (similarity > 0.8) {
-      console.log("✓ Alta similaridade:", similarity);
+    if (currentNoParentheses === targetNoParentheses) {
+      console.log("✓ Correspondência após remover parênteses");
       return true;
     }
     
@@ -232,8 +145,7 @@ const checkArticleMatch = (currentArticle, targetArticle) => {
     return false;
   } catch (e) {
     console.error("Erro na comparação de artigos:", e);
-    // Em caso de erro, tentar uma comparação simples
-    return currentArticle.toLowerCase() === targetArticle.toLowerCase();
+    return false;
   }
 };
 
@@ -462,7 +374,60 @@ const normalizeString = (str) => {
   }
 };
 
-// Modificações no componente para atualizar o caminho do usuário
+// Function to load Wikipedia article content
+const loadArticle = async (title) => {
+  setLoading(true);
+  try {
+    const encodedTitle = encodeURIComponent(title);
+    const response = await fetch(
+      `https://pt.wikipedia.org/w/api.php?action=parse&page=${encodedTitle}&format=json&origin=*&prop=text|displaytitle|categories|langlinks&redirects&uselang=pt-br`
+    );
+    const data = await response.json();
+    
+    if (data.error) {
+      throw new Error(`Erro da API Wikipedia: ${data.error.info}`);
+    }
+    
+    if (data.parse) {
+      // Verificar se tem versão em pt-pt
+      const hasPortugalVersion = data.parse.langlinks?.some(link => link.lang === 'pt');
+      if (hasPortugalVersion) {
+        throw new Error("Este artigo tem uma versão específica para português de Portugal");
+      }
+      
+      // Verificar se o conteúdo indica que é uma página de redirecionamento
+      const content = data.parse.text["*"];
+      if (content.includes('class="redirectText"')) {
+        setCurrentArticle(`<div class="wiki-redirect-notice">
+          <h2>Esta é uma página de redirecionamento</h2>
+          <p>Este clique não será contabilizado. Por favor, clique em outro link para continuar.</p>
+        </div>
+        ${processWikiContent(content)}`);
+        
+        // Importante: Não atualizamos o gameState aqui, pois não queremos contar este clique
+        return true; // Retornamos true para indicar que é um redirecionamento
+      }
+      
+      setCurrentArticle(processWikiContent(content));
+      return false; // Não é um redirecionamento
+    } else {
+      throw new Error("Artigo não encontrado");
+    }
+  } catch (error) {
+    console.error("Error loading article:", error);
+    setCurrentArticle(`<div class="wiki-error">
+      <h2>Erro ao carregar artigo</h2>
+      <p>Ocorreu um erro ao carregar "${title}".</p>
+      <p>Detalhes: ${error.message}</p>
+      <p>Por favor, tente outro link ou inicie um novo jogo.</p>
+    </div>`);
+    return false;
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Modificações no componente para atualizar o caminho do usuário sem penalizar redirecionamentos
 const handleLinkClick = async (event) => {
   const link = event.target.closest('a[data-wiki-link]');
   if (!link) return;
@@ -475,14 +440,21 @@ const handleLinkClick = async (event) => {
     const articleInfo = await getArticleInfo(title);
     if (!articleInfo) return;
     
+    // Se for um redirecionamento, não contabilizar o clique
+    if (articleInfo.isRedirect) {
+      // Apenas carregar o artigo sem decrementar o contador
+      loadArticle(title);
+      return;
+    }
+    
+    // Atualizar caminho apenas internamente
     const newPath = [...gameState.path, {
       title: articleInfo.title,
-      displayTitle: articleInfo.displayTitle,
-      titleForComparison: articleInfo.titleForComparison
+      displayTitle: articleInfo.displayTitle
     }];
     
     // Verifica se encontrou o artigo de destino usando a função melhorada
-    const isComplete = checkArticleMatch(articleInfo.titleForComparison, gameState.endArticleForComparison);
+    const isComplete = checkArticleMatch(articleInfo.displayTitle, gameState.endDisplay);
     
     setGameState(prev => ({
       ...prev,
@@ -492,7 +464,15 @@ const handleLinkClick = async (event) => {
       showCelebration: isComplete
     }));
     
-    loadArticle(title);
+    const isRedirect = await loadArticle(title);
+    
+    // Se for redirecionamento, restaurar o contador (já que loadArticle já exibe o artigo)
+    if (isRedirect) {
+      setGameState(prev => ({
+        ...prev,
+        clicksLeft: prev.clicksLeft + 1 // Restaurar o clique
+      }));
+    }
   }
 };
 
@@ -852,10 +832,18 @@ function App() {
         // Verificar se o conteúdo indica que é uma página de redirecionamento
         const content = data.parse.text["*"];
         if (content.includes('class="redirectText"')) {
-          throw new Error("Este é um redirecionamento");
+          setCurrentArticle(`<div class="wiki-redirect-notice">
+            <h2>Esta é uma página de redirecionamento</h2>
+            <p>Este clique não será contabilizado. Por favor, clique em outro link para continuar.</p>
+          </div>
+          ${processWikiContent(content)}`);
+          
+          // Importante: Não atualizamos o gameState aqui, pois não queremos contar este clique
+          return true; // Retornamos true para indicar que é um redirecionamento
         }
         
         setCurrentArticle(processWikiContent(content));
+        return false; // Não é um redirecionamento
       } else {
         throw new Error("Artigo não encontrado");
       }
@@ -867,8 +855,10 @@ function App() {
         <p>Detalhes: ${error.message}</p>
         <p>Por favor, tente outro link ou inicie um novo jogo.</p>
       </div>`);
+      return false;
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // Process Wikipedia content to make links clickable and improve layout
@@ -900,6 +890,55 @@ function App() {
     });
     
     return div.innerHTML;
+  };
+
+  // Modificações no componente para atualizar o caminho do usuário sem penalizar redirecionamentos
+  const handleLinkClick = async (event) => {
+    const link = event.target.closest('a[data-wiki-link]');
+    if (!link) return;
+    
+    event.preventDefault();
+    const title = link.getAttribute('data-wiki-link');
+    
+    if (gameState.clicksLeft > 0 && !gameState.isComplete) {
+      // Obter informações do artigo incluindo o displayTitle
+      const articleInfo = await getArticleInfo(title);
+      if (!articleInfo) return;
+      
+      // Se for um redirecionamento, não contabilizar o clique
+      if (articleInfo.isRedirect) {
+        // Apenas carregar o artigo sem decrementar o contador
+        loadArticle(title);
+        return;
+      }
+      
+      // Atualizar caminho apenas internamente
+      const newPath = [...gameState.path, {
+        title: articleInfo.title,
+        displayTitle: articleInfo.displayTitle
+      }];
+      
+      // Verifica se encontrou o artigo de destino usando a função melhorada
+      const isComplete = checkArticleMatch(articleInfo.displayTitle, gameState.endDisplay);
+      
+      setGameState(prev => ({
+        ...prev,
+        clicksLeft: prev.clicksLeft - 1,
+        path: newPath,
+        isComplete,
+        showCelebration: isComplete
+      }));
+      
+      const isRedirect = await loadArticle(title);
+      
+      // Se for redirecionamento, restaurar o contador (já que loadArticle já exibe o artigo)
+      if (isRedirect) {
+        setGameState(prev => ({
+          ...prev,
+          clicksLeft: prev.clicksLeft + 1 // Restaurar o clique
+        }));
+      }
+    }
   };
 
   // Componente para o botão de alternância de tema
@@ -1014,29 +1053,17 @@ function App() {
                 />
                 <h1 className="text-2xl font-bold">5CLIQUES</h1>
               </div>
-              <div className="game-stats">
-                <Timer size={20} weight="bold" className="text-primary" />
-                <span className="font-medium">
-                  Cliques restantes: <strong>{gameState.clicksLeft}</strong>
-                </span>
+              
+              {/* Contador de cliques destacado */}
+              <div className="clicks-counter">
+                <div className="clicks-counter-inner">
+                  <div className="clicks-number">{gameState.clicksLeft}</div>
+                  <div className="clicks-label">Cliques<br/>restantes</div>
+                </div>
               </div>
             </div>
             
-            {/* Path visualization - com tratamento para URLs codificadas */}
-            <div className="path-container">
-              <div className="flex items-center gap-2 flex-nowrap min-w-max">
-                {gameState.path.map((article, index) => (
-                  <React.Fragment key={index}>
-                    <span className="path-item" style={{animationDelay: `${index * 0.1}s`}}>
-                      {typeof article === 'string' ? normalizeString(article) : article.displayTitle}
-                    </span>
-                    {index < gameState.path.length - 1 && (
-                      <CaretRight size={20} className="path-arrow" style={{animationDelay: `${index * 0.1 + 0.05}s`}} />
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
+            {/* Removido o componente de visualização do caminho */}
 
             <div className="game-info">
               <div className="flex items-center gap-3">

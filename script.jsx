@@ -32,6 +32,41 @@ const CONTRASTING_TOPICS = [
     target: ["Ciência", "Educação", "Medicina", "Pesquisa"] }
 ];
 
+// Lista de tópicos iniciais mais específicos para garantir artigos interessantes
+const INITIAL_TOPICS = [
+  // Cultura Brasileira
+  "Carnaval", "Samba", "Bossa_Nova", "Capoeira", "Feijoada", "Festa_Junina",
+  "Novela_brasileira", "MPB", "Literatura_do_Brasil", "Cinema_do_Brasil",
+  
+  // Personalidades Brasileiras
+  "Santos_Dumont", "Machado_de_Assis", "Villa-Lobos", "Carmen_Miranda",
+  "Ayrton_Senna", "Oscar_Niemeyer", "Portinari", "Paulo_Freire", "Pelé",
+  
+  // Lugares e Geografia
+  "Rio_de_Janeiro", "São_Paulo", "Salvador", "Amazônia", "Pantanal",
+  "Cristo_Redentor", "Pão_de_Açúcar", "Cataratas_do_Iguaçu", "Fernando_de_Noronha",
+  
+  // História do Brasil
+  "Independência_do_Brasil", "Proclamação_da_República_do_Brasil",
+  "Ditadura_militar_no_Brasil", "Império_do_Brasil", "Getúlio_Vargas",
+  
+  // Cultura Pop Internacional
+  "Star_Wars", "Harry_Potter", "O_Senhor_dos_Anéis", "Game_of_Thrones",
+  "Marvel_Comics", "Disney", "Beatles", "Michael_Jackson",
+  
+  // Ciência e Tecnologia
+  "Albert_Einstein", "Stephen_Hawking", "Charles_Darwin", "Marie_Curie",
+  "Nikola_Tesla", "Internet", "Computador", "Inteligência_artificial",
+  
+  // Arte e História Mundial
+  "Leonardo_da_Vinci", "Pablo_Picasso", "Vincent_van_Gogh", "Frida_Kahlo",
+  "Segunda_Guerra_Mundial", "Primeira_Guerra_Mundial", "Revolução_Industrial",
+  
+  // Esportes
+  "Copa_do_Mundo_FIFA", "Jogos_Olímpicos", "Seleção_Brasileira_de_Futebol",
+  "Vasco_da_Gama", "Flamengo", "Corinthians", "São_Paulo_FC", "Santos_FC"
+];
+
 // Função para obter o display title e informações do artigo
 const getArticleInfo = async (title) => {
   try {
@@ -166,53 +201,58 @@ const generateValidPair = async () => {
   
   while (attempts < maxAttempts) {
     try {
-      // Escolher um par de tópicos contrastantes
-      const contrastingPair = CONTRASTING_TOPICS[Math.floor(Math.random() * CONTRASTING_TOPICS.length)];
+      // Escolher um artigo inicial dos tópicos específicos
+      const startTopic = INITIAL_TOPICS[Math.floor(Math.random() * INITIAL_TOPICS.length)];
       
-      // Escolher um artigo fonte e destino aleatório dos tópicos contrastantes
-      const sourceTopic = contrastingPair.source[Math.floor(Math.random() * contrastingPair.source.length)];
-      const targetTopic = contrastingPair.target[Math.floor(Math.random() * contrastingPair.target.length)];
-      
-      // Obter links para os tópicos e verificar se são artigos pt-br válidos
-      const sourceLinks = await getWikipediaLinks(sourceTopic);
-      const targetLinks = await getWikipediaLinks(targetTopic);
-      
-      if (sourceLinks.length === 0 || targetLinks.length === 0) {
+      // Obter informações do artigo inicial
+      const startInfo = await getArticleInfo(startTopic);
+      if (!startInfo) {
         attempts++;
         continue;
       }
       
-      // Filtrar apenas artigos que não são redirecionamentos e são pt-br
-      const validSourceLinks = sourceLinks.filter(link => !link.title.includes(':') && !link.redirect);
-      const validTargetLinks = targetLinks.filter(link => !link.title.includes(':') && !link.redirect);
-      
-      if (validSourceLinks.length === 0 || validTargetLinks.length === 0) {
+      // Obter links do artigo inicial
+      const initialLinks = await getWikipediaLinks(startTopic);
+      if (initialLinks.length === 0) {
         attempts++;
         continue;
       }
       
-      // Escolher artigos aleatórios dos links válidos
-      const startArticle = validSourceLinks[Math.floor(Math.random() * validSourceLinks.length)];
-      const endArticle = validTargetLinks[Math.floor(Math.random() * validTargetLinks.length)];
+      // Escolher um link de segundo nível (links dos links do artigo inicial)
+      const secondLevelArticles = await Promise.all(
+        initialLinks
+          .slice(0, 5) // Limitar para não sobrecarregar
+          .map(async link => {
+            const secondLinks = await getWikipediaLinks(link.title);
+            return secondLinks;
+          })
+      );
+      
+      // Achatar o array de arrays e remover nulos
+      const flatSecondLevel = secondLevelArticles
+        .flat()
+        .filter(link => link !== null);
+      
+      if (flatSecondLevel.length === 0) {
+        attempts++;
+        continue;
+      }
+      
+      // Escolher um artigo final aleatório do segundo nível
+      const endArticle = flatSecondLevel[Math.floor(Math.random() * flatSecondLevel.length)];
       
       // Verificar se o caminho é possível e está dentro dos limites
-      const pathResult = await checkPathPossibility(startArticle.title, endArticle.title);
+      const pathResult = await checkPathPossibility(startInfo.title, endArticle.title);
       
-      if (pathResult.possible) {
-        // Obter os displayTitles corretos dos artigos
-        const startInfo = await getArticleInfo(startArticle.title);
-        const endInfo = await getArticleInfo(endArticle.title);
-        
-        if (startInfo && endInfo) {
-          return {
-            start: startArticle.title,
-            startDisplay: startInfo.displayTitle,
-            end: endArticle.title,
-            endDisplay: endInfo.displayTitle,
-            difficulty: pathResult.clicks <= 3 ? "easy" : pathResult.clicks === 4 ? "medium" : "hard",
-            expectedClicks: pathResult.clicks
-          };
-        }
+      if (pathResult.possible && pathResult.clicks >= 2 && pathResult.clicks <= 5) {
+        return {
+          start: startInfo.title,
+          startDisplay: startInfo.displayTitle,
+          end: endArticle.title,
+          endDisplay: endArticle.displayTitle,
+          difficulty: pathResult.clicks <= 3 ? "easy" : pathResult.clicks === 4 ? "medium" : "hard",
+          expectedClicks: pathResult.clicks
+        };
       }
     } catch (error) {
       console.error("Erro ao gerar par:", error);
@@ -221,15 +261,46 @@ const generateValidPair = async () => {
     attempts++;
   }
   
-  // Se falhar em gerar um par válido, usar um par de backup
+  // Se falhar em gerar um par válido, usar um par de backup que sabemos que funciona
   return {
-    start: "Brasil",
-    startDisplay: "Brasil",
-    end: "Ciência",
-    endDisplay: "Ciência",
-    difficulty: "medium",
-    expectedClicks: 3
+    start: "Santos_Dumont",
+    startDisplay: "Santos Dumont",
+    end: "Aviação",
+    endDisplay: "Aviação",
+    difficulty: "easy",
+    expectedClicks: 2
   };
+};
+
+// Função para verificar se um artigo é pt-br e não é redirecionamento
+const validateArticle = async (title) => {
+  try {
+    const encodedTitle = encodeURIComponent(title);
+    const response = await fetch(
+      `https://pt.wikipedia.org/w/api.php?action=query&format=json&origin=*&titles=${encodedTitle}&prop=info|langlinks&redirects=1`
+    );
+    const data = await response.json();
+    
+    if (!data.query?.pages) return false;
+    
+    const pages = data.query.pages;
+    const pageId = Object.keys(pages)[0];
+    const page = pages[pageId];
+    
+    // Verificar se a página existe
+    if (pageId === '-1' || !page) return false;
+    
+    // Verificar se é redirecionamento
+    if (page.redirect) return false;
+    
+    // Verificar se tem versão pt-pt
+    if (page.langlinks?.some(link => link.lang === 'pt')) return false;
+    
+    return true;
+  } catch (error) {
+    console.error(`Erro ao validar artigo "${title}":`, error);
+    return false;
+  }
 };
 
 // Função para normalizar strings de títulos de artigos

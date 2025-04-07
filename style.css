@@ -539,11 +539,19 @@ button {
   border-top: 1px solid var(--color-border);
 }
 
-/* Removendo as classes do contador que não são mais necessárias */
+/* Remova completamente as classes do contador */
 .combinations-counter,
 .counter-value,
-.counter-label {
-  display: none;
+.counter-label,
+.counter-title {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
 }
 
 .creator-info {

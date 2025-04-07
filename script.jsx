@@ -783,7 +783,7 @@ function App() {
     try {
       const encodedTitle = encodeURIComponent(title);
       const response = await fetch(
-        `https://pt.wikipedia.org/w/api.php?action=query&titles=${encodedTitle}&format=json&origin=*`
+        `https://pt-br.wikipedia.org/w/api.php?action=query&titles=${encodedTitle}&format=json&origin=*`
       );
       const data = await response.json();
       
@@ -882,7 +882,7 @@ function App() {
       // Usando encodeURIComponent para codificar corretamente o título do artigo
       const encodedTitle = encodeURIComponent(title);
       const response = await fetch(
-        `https://pt.wikipedia.org/w/api.php?action=parse&page=${encodedTitle}&format=json&origin=*&prop=text|categories|sections`
+        `https://pt-br.wikipedia.org/w/api.php?action=parse&page=${encodedTitle}&format=json&origin=*&prop=text|categories|sections`
       );
       const data = await response.json();
       
@@ -897,7 +897,7 @@ function App() {
         // Artigo não encontrado, mostrar erro
         setCurrentArticle(`<div class="wiki-error">
           <h2>Artigo não encontrado</h2>
-          <p>O artigo "${title}" não foi encontrado na Wikipedia em português.</p>
+          <p>O artigo "${title}" não foi encontrado na Wikipedia em português do Brasil.</p>
           <p>Isso pode ser um erro no par de artigos. Tente iniciar um novo jogo.</p>
         </div>`);
       }
@@ -1017,8 +1017,29 @@ function App() {
     const normalizedCurrent = normalize(currentArticle);
     const normalizedTarget = normalize(targetArticle);
     
-    // Verificação normalizada
+    // Verificação normalizada (sem acentos, sem underscores, minúsculas)
     if (normalizedCurrent === normalizedTarget) return true;
+    
+    // Verificação apenas sem o underscore (mantendo acentos)
+    const simpleNormalize = (str) => {
+      try {
+        let decodedStr = str;
+        try {
+          decodedStr = decodeURIComponent(str);
+        } catch (e) {
+          // Ignora erros
+        }
+        return decodedStr.replace(/_/g, ' ').toLowerCase().trim();
+      } catch (e) {
+        return str.replace(/_/g, ' ').toLowerCase().trim();
+      }
+    };
+    
+    const simpleCurrentNormalized = simpleNormalize(currentArticle);
+    const simpleTargetNormalized = simpleNormalize(targetArticle);
+    
+    // Verificação apenas com espaços e minúsculas (mantendo acentos)
+    if (simpleCurrentNormalized === simpleTargetNormalized) return true;
     
     // Lista de variações conhecidas para artigos específicos
     const articleVariations = {
@@ -1038,7 +1059,22 @@ function App() {
       'egito_antigo': ['antigo_egito', 'civilização_egípcia', 'civilizacao_egipcia'],
       'grécia_antiga': ['grecia_antiga', 'antiga_grécia', 'antiga_grecia'],
       'revolução_francesa': ['revolucao_francesa', 'revolucao_francesa'],
-      'máquina_de_lavar': ['maquina_de_lavar', 'maquina_de_lavar_roupa', 'máquina_de_lavar_roupa', 'lavadora']
+      'máquina_de_lavar': ['maquina_de_lavar', 'maquina_de_lavar_roupa', 'máquina_de_lavar_roupa', 'lavadora'],
+      'imóveis': ['imoveis'],
+      'música': ['musica'],
+      'política': ['politica'],
+      'história': ['historia'],
+      'méxico': ['mexico'],
+      'matemática': ['matematica'],
+      'física': ['fisica'],
+      'química': ['quimica'],
+      'biologia': ['biologia'],
+      'japão': ['japao'],
+      'alemanha': ['alemanha'],
+      'frança': ['franca'],
+      'espanha': ['espanha'],
+      'itália': ['italia'],
+      'ciência': ['ciencia']
     };
     
     // Verificar se há correspondência em variações conhecidas
@@ -1053,23 +1089,76 @@ function App() {
     
     // Verificar correspondência com caracteres codificados em URL
     const checkURLEncoded = (str1, str2) => {
-      if (decodeURIComponent(str1).replace(/_/g, ' ').toLowerCase() === 
-          decodeURIComponent(str2).replace(/_/g, ' ').toLowerCase()) {
-        return true;
+      try {
+        if (decodeURIComponent(str1).replace(/_/g, ' ').toLowerCase() === 
+            decodeURIComponent(str2).replace(/_/g, ' ').toLowerCase()) {
+          return true;
+        }
+      } catch (e) {
+        // Ignora erros de decodificação
       }
       return false;
     };
     
-    try {
-      if (checkURLEncoded(currentArticle, targetArticle)) return true;
-    } catch (e) {
-      // Ignora erros de decodificação
-    }
+    if (checkURLEncoded(currentArticle, targetArticle)) return true;
     
     // Verificar se um é parte significativa do outro (para casos como "Platão" vs "Filosofia_de_Platão")
     if ((normalizedCurrent.includes(normalizedTarget) && normalizedTarget.length > 5) || 
         (normalizedTarget.includes(normalizedCurrent) && normalizedCurrent.length > 5)) {
       return true;
+    }
+    
+    // Verificar se apenas diferem em letras acentuadas
+    // Criar mapas de caracteres acentuados comuns
+    const accentMappings = {
+      'a': ['á', 'à', 'â', 'ã'],
+      'e': ['é', 'è', 'ê'],
+      'i': ['í', 'ì', 'î'],
+      'o': ['ó', 'ò', 'ô', 'õ'],
+      'u': ['ú', 'ù', 'û'],
+      'c': ['ç'],
+      'n': ['ñ']
+    };
+    
+    // Função para substituir caracteres acentuados com várias possibilidades
+    const getAllPossibleForms = (str) => {
+      const normalizedStr = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      let variations = [normalizedStr];
+      
+      // Para cada letra que pode ter acento, gerar variações
+      for (const [base, accents] of Object.entries(accentMappings)) {
+        const positions = [];
+        for (let i = 0; i < normalizedStr.length; i++) {
+          if (normalizedStr[i] === base) {
+            positions.push(i);
+          }
+        }
+        
+        if (positions.length > 0) {
+          const newVariations = [...variations];
+          for (const pos of positions) {
+            for (const accent of accents) {
+              for (const variant of variations) {
+                const newVariant = variant.substring(0, pos) + accent + variant.substring(pos + 1);
+                newVariations.push(newVariant);
+              }
+            }
+          }
+          variations = [...newVariations];
+        }
+      }
+      
+      return variations;
+    };
+    
+    // Gerar possíveis variações dos dois títulos e verificar se há correspondência
+    const currentVariations = getAllPossibleForms(simpleCurrentNormalized);
+    const targetVariations = getAllPossibleForms(simpleTargetNormalized);
+    
+    for (const curVar of currentVariations) {
+      if (targetVariations.includes(curVar)) {
+        return true;
+      }
     }
     
     return false;

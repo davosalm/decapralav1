@@ -2,214 +2,6 @@ import * as React from "react";
 import { createRoot } from "react-dom/client";
 import { Trophy, ArrowRight, BookOpen, Brain, Lightning, Timer, CaretRight, Question, Play, House, Sun, Moon } from "@phosphor-icons/react";
 
-const GAME_PAIRS = [
-  // Pares originais (corrigidos)
-  { start: "Neymar", end: "Albert_Einstein", difficulty: "medium" },
-  { start: "Açaí", end: "Revolução_Industrial", difficulty: "medium" },
-  { start: "Futebol", end: "Filosofia", difficulty: "easy" },
-  { start: "Carnaval", end: "Física_Quântica", difficulty: "medium" },
-  { start: "Samba", end: "Inteligência_Artificial", difficulty: "medium" },
-  { start: "Pelé", end: "Segunda_Guerra_Mundial", difficulty: "medium" },
-  { start: "Rio_Amazonas", end: "Teoria_da_Relatividade", difficulty: "hard" },
-  { start: "Bossa_Nova", end: "Napoleão_Bonaparte", difficulty: "hard" },
-  { start: "Feijoada", end: "Revolução_Francesa", difficulty: "medium" },
-  { start: "Copacabana", end: "Leonardo_da_Vinci", difficulty: "medium" },
-  { start: "Capoeira", end: "Revolução_Russa", difficulty: "medium" },
-  { start: "Ipanema", end: "Charles_Darwin", difficulty: "medium" },
-  { start: "Saci-Pererê", end: "William_Shakespeare", difficulty: "hard" },
-  { start: "Guaraná", end: "Pablo_Picasso", difficulty: "hard" },
-  { start: "Cristo_Redentor", end: "Stephen_Hawking", difficulty: "medium" },
-  { start: "São_Paulo", end: "Platão", difficulty: "easy" },
-  { start: "Rio_de_Janeiro", end: "Isaac_Newton", difficulty: "medium" },
-  { start: "Santos_Dumont", end: "Teoria_da_Evolução", difficulty: "medium" },
-  { start: "Pantanal", end: "Vincent_van_Gogh", difficulty: "hard" },
-  { start: "Estádio_do_Maracanã", end: "Marie_Curie", difficulty: "hard" },
-  { start: "Carmen_Miranda", end: "Sigmund_Freud", difficulty: "hard" },
-  { start: "Tom_Jobim", end: "Galileu_Galilei", difficulty: "hard" },
-  { start: "Anitta", end: "Aristóteles", difficulty: "hard" },
-  { start: "Machado_de_Assis", end: "Revolução_Chinesa", difficulty: "medium" },
-  { start: "Cachaça", end: "Guerra_Fria", difficulty: "medium" },
-  { start: "Brigadeiro", end: "Revolução_Industrial", difficulty: "hard" },
-  { start: "Povos_indígenas_do_Brasil", end: "Primeira_Guerra_Mundial", difficulty: "medium" },
-  { start: "Xuxa", end: "Nikola_Tesla", difficulty: "hard" },
-  { start: "Roberto_Carlos", end: "Ludwig_van_Beethoven", difficulty: "medium" },
-  { start: "Chico_Buarque", end: "Karl_Marx", difficulty: "medium" },
-  { start: "Zico", end: "Thomas_Edison", difficulty: "hard" },
-  { start: "Ayrton_Senna", end: "René_Descartes", difficulty: "hard" },
-  { start: "Oscar_Niemeyer", end: "Michelangelo", difficulty: "medium" },
-  { start: "Tarsila_do_Amaral", end: "Salvador_Dalí", difficulty: "medium" },
-  { start: "Garrincha", end: "Johannes_Gutenberg", difficulty: "hard" },
-  { start: "Embraer", end: "Revolução_Digital", difficulty: "medium" },
-  { start: "Petrobras", end: "Bill_Gates", difficulty: "medium" },
-  { start: "Vale_(empresa)", end: "Steve_Jobs", difficulty: "medium" },
-  { start: "Banco_do_Brasil", end: "Mark_Zuckerberg", difficulty: "medium" },
-  { start: "Itaú_Unibanco", end: "Jeff_Bezos", difficulty: "medium" },
-  { start: "Bradesco", end: "Elon_Musk", difficulty: "medium" },
-  { start: "Casas_Bahia", end: "Tim_Berners-Lee", difficulty: "hard" },
-  { start: "Magazine_Luiza", end: "Ada_Lovelace", difficulty: "hard" },
-  { start: "Natura", end: "Charles_Babbage", difficulty: "hard" },
-  { start: "O_Boticário", end: "Alan_Turing", difficulty: "hard" },
-  { start: "Havaianas", end: "Revolução_Industrial", difficulty: "medium" },
-  { start: "TV_Globo", end: "Guerra_do_Vietnã", difficulty: "medium" },
-  { start: "RecordTV", end: "Guerra_da_Coreia", difficulty: "medium" },
-  { start: "SBT", end: "Guerra_Fria", difficulty: "medium" },
-  { start: "Silvio_Santos", end: "Winston_Churchill", difficulty: "medium" },
-  { start: "Fausto_Silva", end: "Franklin_D._Roosevelt", difficulty: "hard" },
-  { start: "Gugu_Liberato", end: "John_F._Kennedy", difficulty: "hard" },
-  { start: "Ana_Maria_Braga", end: "Margaret_Thatcher", difficulty: "hard" },
-  { start: "Hebe_Camargo", end: "Rainha_Elizabeth_II", difficulty: "hard" },
-  { start: "Chacrinha", end: "Mahatma_Gandhi", difficulty: "hard" },
-  { start: "Jô_Soares", end: "Nelson_Mandela", difficulty: "medium" },
-  { start: "Paulo_Coelho", end: "Jorge_Luis_Borges", difficulty: "medium" },
-  { start: "Clarice_Lispector", end: "Virginia_Woolf", difficulty: "medium" },
-  { start: "Jorge_Amado", end: "Gabriel_García_Márquez", difficulty: "medium" },
-  { start: "Graciliano_Ramos", end: "Ernest_Hemingway", difficulty: "medium" },
-  { start: "Carlos_Drummond_de_Andrade", end: "Pablo_Neruda", difficulty: "medium" },
-  { start: "Vinícius_de_Moraes", end: "Federico_García_Lorca", difficulty: "medium" },
-  { start: "Cecília_Meireles", end: "Emily_Dickinson", difficulty: "hard" },
-  { start: "Manuel_Bandeira", end: "Fernando_Pessoa", difficulty: "medium" },
-  { start: "João_Cabral_de_Melo_Neto", end: "T._S._Eliot", difficulty: "hard" },
-  { start: "Mário_de_Andrade", end: "James_Joyce", difficulty: "medium" },
-  { start: "Oswald_de_Andrade", end: "Marcel_Proust", difficulty: "hard" },
-  { start: "Lima_Barreto", end: "Charles_Dickens", difficulty: "medium" },
-  { start: "Euclides_da_Cunha", end: "Victor_Hugo", difficulty: "medium" },
-  { start: "Guimarães_Rosa", end: "Fiódor_Dostoiévski", difficulty: "medium" },
-  { start: "José_de_Alencar", end: "Miguel_de_Cervantes", difficulty: "medium" },
-  { start: "Joaquim_Nabuco", end: "Jean-Jacques_Rousseau", difficulty: "hard" },
-  { start: "Rui_Barbosa", end: "Voltaire", difficulty: "medium" },
-  { start: "Pedro_II_do_Brasil", end: "Napoleão_Bonaparte", difficulty: "medium" },
-  { start: "Coreia_do_Sul", end: "Constituição_brasileira_de_1937", difficulty: "hard" },
-  { start: "Junji_Ito", end: "Igreja_Católica", difficulty: "hard" },
-  { start: "Batismo", end: "René_Descartes", difficulty: "medium" },
-  { start: "Geometria_Analítica", end: "Nova_Iorque", difficulty: "hard" },
-  { start: "Oceano_Atlântico", end: "Comunismo", difficulty: "medium" },
-  { start: "Café", end: "Revolução_Francesa", difficulty: "medium" },
-  { start: "Pizza", end: "Segunda_Guerra_Mundial", difficulty: "medium" },
-  { start: "Chocolate", end: "Primeira_Guerra_Mundial", difficulty: "easy" },
-  { start: "Vodca", end: "Revolução_Russa", difficulty: "easy" },
-  { start: "Sushi", end: "Culinária_Japonesa", difficulty: "easy" },
-  { start: "Croissant", end: "Napoleão_Bonaparte", difficulty: "medium" },
-  { start: "Tacos", end: "Cristóvão_Colombo", difficulty: "medium" },
-  { start: "Hambúrguer", end: "Guerra_Fria", difficulty: "medium" },
-  { start: "Caril", end: "Mahatma_Gandhi", difficulty: "medium" },
-  { start: "Paella", end: "Pablo_Picasso", difficulty: "medium" },
-  { start: "Churrasco", end: "Charles_Darwin", difficulty: "hard" },
-  { start: "Lasanha", end: "Leonardo_da_Vinci", difficulty: "medium" },
-  { start: "Kimchi", end: "Guerra_da_Coreia", difficulty: "easy" },
-  { start: "Cuscuz", end: "Cleópatra", difficulty: "medium" },
-  { start: "Sopa", end: "Revolução_Industrial", difficulty: "medium" },
-  { start: "PlayStation", end: "Albert_Einstein", difficulty: "hard" },
-  { start: "Nintendo", end: "Segunda_Guerra_Mundial", difficulty: "medium" },
-  { start: "Xbox", end: "Bill_Gates", difficulty: "easy" },
-  { start: "Among_Us", end: "Guerra_Fria", difficulty: "hard" },
-  { start: "Minecraft", end: "Revolução_Industrial", difficulty: "medium" },
-  { start: "Tetris", end: "União_Soviética", difficulty: "easy" },
-  { start: "Pac-Man", end: "Teoria_da_Relatividade", difficulty: "hard" },
-  { start: "The_Legend_of_Zelda", end: "Mitologia_Grega", difficulty: "medium" },
-  { start: "Super_Mario", end: "Revolução_Italiana", difficulty: "medium" },
-  { start: "Fortnite", end: "Primeira_Guerra_Mundial", difficulty: "hard" },
-  { start: "Bicicleta", end: "Albert_Einstein", difficulty: "medium" },
-  { start: "Skate", end: "Revolução_Cultural", difficulty: "hard" },
-  { start: "Furacão", end: "Mudanças_Climáticas", difficulty: "easy" },
-  { start: "Aurora_Boreal", end: "Nikola_Tesla", difficulty: "medium" },
-  { start: "Tsunami", end: "Teoria_da_Relatividade", difficulty: "hard" },
-  { start: "Vulcão", end: "Pompeia", difficulty: "easy" },
-  { start: "Terremoto", end: "Teoria_das_Placas_Tectônicas", difficulty: "easy" },
-  { start: "Eclipse", end: "Isaac_Newton", difficulty: "medium" },
-  { start: "Cometa", end: "Stephen_Hawking", difficulty: "medium" },
-  { start: "Arco-íris", end: "Isaac_Newton", difficulty: "medium" },
-  { start: "TikTok", end: "Guerra_Fria", difficulty: "hard" },
-  { start: "Instagram", end: "Mark_Zuckerberg", difficulty: "easy" },
-  { start: "Twitter", end: "Revolução_Árabe", difficulty: "medium" },
-  { start: "WhatsApp", end: "Privacidade_Digital", difficulty: "easy" },
-  { start: "Facebook", end: "Eleições_Americanas", difficulty: "medium" },
-  { start: "YouTube", end: "Revolução_Digital", difficulty: "easy" },
-  { start: "Netflix", end: "Hollywood", difficulty: "easy" },
-  { start: "Spotify", end: "Ludwig_van_Beethoven", difficulty: "medium" },
-  { start: "Tinder", end: "Revolução_Sexual", difficulty: "medium" },
-  { start: "LinkedIn", end: "Revolução_Industrial", difficulty: "medium" },
-  { start: "Basquete", end: "Guerra_Fria", difficulty: "medium" },
-  { start: "Voleibol", end: "Segunda_Guerra_Mundial", difficulty: "medium" },
-  { start: "Tênis", end: "Revolução_Francesa", difficulty: "medium" },
-  { start: "Surfe", end: "James_Cook", difficulty: "medium" },
-  { start: "Golfe", end: "Escocia", difficulty: "medium" },
-  { start: "Rugby", end: "Império_Britânico", difficulty: "medium" },
-  { start: "Ciclismo", end: "Revolução_Industrial", difficulty: "medium" },
-  { start: "Natação", end: "Jogos_Olímpicos_da_Antiguidade", difficulty: "medium" },
-  { start: "Kung_Fu", end: "Revolução_Chinesa", difficulty: "medium" },
-  { start: "Boxe", end: "Muhammad_Ali", difficulty: "easy" },
-  { start: "Samba_de_Gafieira", end: "Segunda_Guerra_Mundial", difficulty: "hard" },
-  { start: "Tango", end: "Grande_Depressão", difficulty: "medium" },
-  { start: "Balé", end: "Revolução_Russa", difficulty: "medium" },
-  { start: "Hip_Hop", end: "Movimento_pelos_direitos_civis_nos_Estados_Unidos", difficulty: "medium" },
-  { start: "Flamenco", end: "Pablo_Picasso", difficulty: "medium" },
-  { start: "Salsa_(dança)", end: "Revolução_Cubana", difficulty: "medium" },
-  { start: "Break_Dance", end: "Guerra_Fria", difficulty: "medium" },
-  { start: "K-pop", end: "Guerra_da_Coreia", difficulty: "medium" },
-  { start: "Valsa", end: "Congresso_de_Viena", difficulty: "medium" },
-  { start: "Pole_Dance", end: "Revolução_Sexual", difficulty: "medium" },
-  { start: "Pokémon", end: "Charles_Darwin", difficulty: "hard" },
-  { start: "Hello_Kitty", end: "Segunda_Guerra_Mundial", difficulty: "hard" },
-  { start: "Naruto", end: "História_do_Japão", difficulty: "medium" },
-  { start: "Dragon_Ball", end: "Mitologia_Chinesa", difficulty: "medium" },
-  { start: "One_Piece", end: "Era_dos_Descobrimentos", difficulty: "medium" },
-  { start: "Sailor_Moon", end: "Feminismo", difficulty: "medium" },
-  { start: "Attack_on_Titan", end: "Segunda_Guerra_Mundial", difficulty: "medium" },
-  { start: "Death_Note", end: "Ética", difficulty: "medium" },
-  { start: "My_Hero_Academia", end: "Friedrich_Nietzsche", difficulty: "hard" },
-  { start: "JoJo's_Bizarre_Adventure", end: "Egito_Antigo", difficulty: "medium" },
-  { start: "Bolo_de_Chocolate", end: "Revolução_Industrial", difficulty: "hard" },
-  { start: "Brigadeiro", end: "Segunda_Guerra_Mundial", difficulty: "medium" },
-  { start: "Paçoca", end: "Povos_indígenas_do_Brasil", difficulty: "easy" },
-  { start: "Mousse", end: "Revolução_Francesa", difficulty: "medium" },
-  { start: "Pudim", end: "Colonização_Portuguesa", difficulty: "medium" },
-  { start: "Cheesecake", end: "Grécia_Antiga", difficulty: "hard" },
-  { start: "Tiramisù", end: "Renascimento_Italiano", difficulty: "medium" },
-  { start: "Churros", end: "Cristóvão_Colombo", difficulty: "medium" },
-  { start: "Brownie", end: "Chicago", difficulty: "medium" },
-  { start: "Sorvete", end: "Marco_Polo", difficulty: "medium" },
-  { start: "Lady_Gaga", end: "Andy_Warhol", difficulty: "medium" },
-  { start: "Michael_Jackson", end: "Guerra_Fria", difficulty: "medium" },
-  { start: "Madonna", end: "Revolução_Sexual", difficulty: "medium" },
-  { start: "BTS", end: "Guerra_da_Coreia", difficulty: "medium" },
-  { start: "The_Beatles", end: "Guerra_Fria", difficulty: "medium" },
-  { start: "Elvis_Presley", end: "Guerra_Fria", difficulty: "medium" },
-  { start: "Beyoncé", end: "Feminismo", difficulty: "medium" },
-  { start: "Queen_(banda)", end: "AIDS", difficulty: "medium" },
-  { start: "Taylor_Swift", end: "Feminismo", difficulty: "medium" },
-  { start: "Bob_Marley", end: "Colonialismo", difficulty: "medium" },
-  { start: "Harry_Potter", end: "Segunda_Guerra_Mundial", difficulty: "medium" },
-  { start: "O_Senhor_dos_Anéis", end: "Primeira_Guerra_Mundial", difficulty: "medium" },
-  { start: "Game_of_Thrones", end: "Guerra_das_Duas_Rosas", difficulty: "medium" },
-  { start: "Matrix", end: "Filosofia_Grega", difficulty: "medium" },
-  { start: "Star_Wars", end: "Mitologia_Comparada", difficulty: "medium" },
-  { start: "Vingadores_(filme)", end: "Guerra_Fria", difficulty: "medium" },
-  { start: "Titanic_(filme_de_1997)", end: "Primeira_Guerra_Mundial", difficulty: "medium" },
-  { start: "Jurassic_Park", end: "Charles_Darwin", difficulty: "medium" },
-  { start: "O_Poderoso_Chefão", end: "Grande_Depressão", difficulty: "medium" },
-  { start: "Frozen", end: "Hans_Christian_Andersen", difficulty: "medium" },
-  { start: "Abacate", end: "Civilização_Asteca", difficulty: "medium" },
-  { start: "Tomate", end: "Revolução_Agrícola", difficulty: "medium" },
-  { start: "Batata", end: "Grande_Fome_Irlandesa", difficulty: "easy" },
-  { start: "Milho", end: "Civilização_Maia", difficulty: "easy" },
-  { start: "Trigo", end: "Revolução_Agrícola", difficulty: "easy" },
-  { start: "Arroz", end: "Mao_Tsé-Tung", difficulty: "medium" },
-  { start: "Manga_(fruta)", end: "Império_Britânico", difficulty: "medium" },
-  { start: "Banana", end: "United_Fruit_Company", difficulty: "medium" },
-  { start: "Coco", end: "Grandes_Navegações", difficulty: "medium" },
-  { start: "Pimenta", end: "Vasco_da_Gama", difficulty: "medium" },
-  { start: "Havaianas", end: "Japão", difficulty: "medium" },
-  { start: "Volkswagen_Fusca", end: "História_da_Alemanha", difficulty: "medium" },
-  { start: "IPhone", end: "Revolução_Digital", difficulty: "easy" },
-  { start: "Lego", end: "Segunda_Guerra_Mundial", difficulty: "medium" },
-  { start: "Coca-Cola", end: "Guerra_Fria", difficulty: "medium" },
-  { start: "McDonald's", end: "Guerra_Fria", difficulty: "medium" },
-  { start: "IKEA", end: "Segunda_Guerra_Mundial", difficulty: "medium" },
-  { start: "Nike", end: "Jogos_Olímpicos", difficulty: "medium" },
-  { start: "Barbie", end: "Feminismo", difficulty: "medium" },
-  { start: "Rolex", end: "Primeira_Guerra_Mundial", difficulty: "medium" },
-];
-
 // Lista de tópicos gerais para serem usados como sementes para gerar artigos
 const SEED_TOPICS = [
   // História e Sociedade
@@ -231,22 +23,25 @@ const getWikipediaLinks = async (title) => {
   try {
     const encodedTitle = encodeURIComponent(title);
     const response = await fetch(
-      `https://pt.wikipedia.org/w/api.php?action=parse&page=${encodedTitle}&format=json&origin=*&prop=links`
+      `https://pt-br.wikipedia.org/w/api.php?action=query&format=json&origin=*&titles=${encodedTitle}&prop=links&pllimit=500&plnamespace=0`
     );
     const data = await response.json();
     
     if (data.error) {
+      console.error(`Erro na API da Wikipedia: ${data.error.info}`);
       return [];
     }
     
-    if (data.parse && data.parse.links) {
-      return data.parse.links
-        .filter(link => link.ns === 0) // Filtrar apenas artigos principais
-        .map(link => link['*'])
-        .filter(link => !link.includes(':') && !link.includes('/')); // Remover links especiais
+    const pages = data.query.pages;
+    const pageId = Object.keys(pages)[0];
+    
+    if (!pages[pageId].links) {
+      return [];
     }
     
-    return [];
+    return pages[pageId].links
+      .map(link => link.title)
+      .filter(title => !title.includes(':') && !title.includes('/'));
   } catch (error) {
     console.error(`Erro ao obter links do artigo "${title}":`, error);
     return [];
@@ -255,34 +50,46 @@ const getWikipediaLinks = async (title) => {
 
 // Função para verificar se é possível chegar de um artigo a outro em N cliques
 const checkPathPossibility = async (startArticle, endArticle, maxClicks = 5, minClicks = 2) => {
-  const visited = new Set();
-  const queue = [[startArticle, 0]];
-  visited.add(startArticle);
+  const visited = new Set([startArticle]);
+  const queue = [[startArticle, 0, [startArticle]]];
   
   while (queue.length > 0) {
-    const [currentArticle, clicks] = queue.shift();
+    const [currentArticle, clicks, path] = queue.shift();
     
-    if (clicks > maxClicks) {
+    if (clicks >= maxClicks) {
       continue;
     }
     
-    if (currentArticle === endArticle && clicks >= minClicks) {
-      return clicks;
-    }
-    
-    if (clicks < maxClicks) {
-      const links = await getWikipediaLinks(currentArticle);
-      
-      for (const link of links) {
-        if (!visited.has(link)) {
-          visited.add(link);
-          queue.push([link, clicks + 1]);
+    const links = await getWikipediaLinks(currentArticle);
+    for (const link of links) {
+      if (link === endArticle) {
+        const finalClicks = clicks + 1;
+        if (finalClicks >= minClicks && finalClicks <= maxClicks) {
+          return {
+            possible: true,
+            clicks: finalClicks,
+            path: [...path, link]
+          };
         }
       }
+      
+      if (!visited.has(link) && clicks < maxClicks - 1) {
+        visited.add(link);
+        queue.push([link, clicks + 1, [...path, link]]);
+      }
+    }
+    
+    // Limitar a quantidade de artigos visitados para não sobrecarregar
+    if (visited.size > 1000) {
+      break;
     }
   }
   
-  return -1;
+  return {
+    possible: false,
+    clicks: -1,
+    path: []
+  };
 };
 
 // Função para gerar um par válido de artigos
@@ -297,29 +104,36 @@ const generateValidPair = async () => {
       
       // Obter links do artigo semente
       const seedLinks = await getWikipediaLinks(seedTopic);
-      if (seedLinks.length === 0) continue;
+      if (seedLinks.length === 0) {
+        attempts++;
+        continue;
+      }
       
       // Escolher artigo inicial aleatório dos links da semente
       const startArticle = seedLinks[Math.floor(Math.random() * seedLinks.length)];
       
       // Obter links do artigo inicial
       const startLinks = await getWikipediaLinks(startArticle);
-      if (startLinks.length === 0) continue;
+      if (startLinks.length === 0) {
+        attempts++;
+        continue;
+      }
       
-      // Escolher artigo final aleatório dos links do artigo inicial
-      // ou dos links da semente para aumentar a variedade
-      const potentialEndLinks = [...new Set([...startLinks, ...seedLinks])];
-      const endArticle = potentialEndLinks[Math.floor(Math.random() * potentialEndLinks.length)];
-      
-      // Verificar se o caminho é possível e está dentro dos limites
-      const pathLength = await checkPathPossibility(startArticle, endArticle);
-      
-      if (pathLength >= 2 && pathLength <= 5) {
-        return {
-          start: startArticle,
-          end: endArticle,
-          difficulty: pathLength <= 3 ? "easy" : pathLength === 4 ? "medium" : "hard"
-        };
+      // Escolher um artigo final distante
+      for (let i = 0; i < 5; i++) {
+        const randomEndIndex = Math.floor(Math.random() * startLinks.length);
+        const potentialEndArticle = startLinks[randomEndIndex];
+        
+        // Verificar se o caminho é possível e está dentro dos limites
+        const pathResult = await checkPathPossibility(startArticle, potentialEndArticle);
+        
+        if (pathResult.possible) {
+          return {
+            start: startArticle,
+            end: potentialEndArticle,
+            difficulty: pathResult.clicks <= 3 ? "easy" : pathResult.clicks === 4 ? "medium" : "hard"
+          };
+        }
       }
     } catch (error) {
       console.error("Erro ao gerar par:", error);
@@ -328,7 +142,7 @@ const generateValidPair = async () => {
     attempts++;
   }
   
-  // Se falhar em gerar um par válido, usar um par de backup
+  // Se falhar em gerar um par válido, usar um par de backup com links garantidos
   return {
     start: "Brasil",
     end: "Ciência",

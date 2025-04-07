@@ -974,13 +974,44 @@ function App() {
     // Verificação exata
     if (currentArticle === targetArticle) return true;
     
+    // Decodificar URLs codificadas
+    let currentDecoded = currentArticle;
+    let targetDecoded = targetArticle;
+    
+    try {
+      currentDecoded = decodeURIComponent(currentArticle);
+      targetDecoded = decodeURIComponent(targetArticle);
+    } catch (e) {
+      // Ignora erros de decodificação
+    }
+    
+    // Se após decodificar são iguais
+    if (currentDecoded === targetDecoded) return true;
+    
     // Normalizar ambos os títulos (remover acentos, underscores e transformar em minúsculas)
     const normalize = (str) => {
-      return str.normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')  // remove acentos
-                .replace(/_/g, ' ')               // substitui underscores por espaços
-                .toLowerCase()                    // converte para minúsculas
-                .trim();                          // remove espaços extras
+      try {
+        // Primeiro tenta decodificar se for uma string codificada em URL
+        let decodedStr = str;
+        try {
+          decodedStr = decodeURIComponent(str);
+        } catch (e) {
+          // Se não conseguir decodificar, ignora e usa a string original
+        }
+        
+        return decodedStr
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')  // remove acentos
+          .replace(/_/g, ' ')               // substitui underscores por espaços
+          .toLowerCase()                    // converte para minúsculas
+          .trim();                          // remove espaços extras
+      } catch (e) {
+        // Em caso de erro, retorna uma versão simplificada
+        return str
+          .replace(/_/g, ' ')
+          .toLowerCase()
+          .trim();
+      }
     };
     
     const normalizedCurrent = normalize(currentArticle);
@@ -1005,7 +1036,9 @@ function App() {
       'jogos_olímpicos': ['jogos_olimpicos', 'olimpíadas', 'olimpiadas'],
       'filosofia_grega': ['filosofia_da_grecia_antiga', 'filosofos_gregos'],
       'egito_antigo': ['antigo_egito', 'civilização_egípcia', 'civilizacao_egipcia'],
-      'grécia_antiga': ['grecia_antiga', 'antiga_grécia', 'antiga_grecia']
+      'grécia_antiga': ['grecia_antiga', 'antiga_grécia', 'antiga_grecia'],
+      'revolução_francesa': ['revolucao_francesa', 'revolucao_francesa'],
+      'máquina_de_lavar': ['maquina_de_lavar', 'maquina_de_lavar_roupa', 'máquina_de_lavar_roupa', 'lavadora']
     };
     
     // Verificar se há correspondência em variações conhecidas
@@ -1016,6 +1049,21 @@ function App() {
       if (normalize(base) === normalizedCurrent && variations.some(v => normalize(v) === normalizedTarget)) {
         return true;
       }
+    }
+    
+    // Verificar correspondência com caracteres codificados em URL
+    const checkURLEncoded = (str1, str2) => {
+      if (decodeURIComponent(str1).replace(/_/g, ' ').toLowerCase() === 
+          decodeURIComponent(str2).replace(/_/g, ' ').toLowerCase()) {
+        return true;
+      }
+      return false;
+    };
+    
+    try {
+      if (checkURLEncoded(currentArticle, targetArticle)) return true;
+    } catch (e) {
+      // Ignora erros de decodificação
     }
     
     // Verificar se um é parte significativa do outro (para casos como "Platão" vs "Filosofia_de_Platão")
@@ -1032,17 +1080,87 @@ function App() {
     setShowMenu(true);
   };
 
-  // Função para normalizar strings (decodificar URLs)
+  // Função para normalizar strings (decodificar URLs e limpar Unicode)
   const normalizeString = (str) => {
     try {
       // Primeiro tenta decodificar se for uma string codificada em URL
-      const decodedStr = decodeURIComponent(str);
+      let decodedStr = decodeURIComponent(str);
+      
+      // Substituir caracteres Unicode codificados em forma %C3%xx
+      decodedStr = decodedStr.replace(/%C3%A1/g, 'á')
+                             .replace(/%C3%A0/g, 'à')
+                             .replace(/%C3%A2/g, 'â')
+                             .replace(/%C3%A3/g, 'ã')
+                             .replace(/%C3%A9/g, 'é')
+                             .replace(/%C3%A8/g, 'è')
+                             .replace(/%C3%AA/g, 'ê')
+                             .replace(/%C3%AD/g, 'í')
+                             .replace(/%C3%AC/g, 'ì')
+                             .replace(/%C3%B3/g, 'ó')
+                             .replace(/%C3%B2/g, 'ò')
+                             .replace(/%C3%B4/g, 'ô')
+                             .replace(/%C3%B5/g, 'õ')
+                             .replace(/%C3%BA/g, 'ú')
+                             .replace(/%C3%B9/g, 'ù')
+                             .replace(/%C3%A7/g, 'ç')
+                             .replace(/%C3%87/g, 'Ç')
+                             .replace(/%C3%81/g, 'Á')
+                             .replace(/%C3%80/g, 'À')
+                             .replace(/%C3%82/g, 'Â')
+                             .replace(/%C3%83/g, 'Ã')
+                             .replace(/%C3%89/g, 'É')
+                             .replace(/%C3%88/g, 'È')
+                             .replace(/%C3%8A/g, 'Ê')
+                             .replace(/%C3%8D/g, 'Í')
+                             .replace(/%C3%8C/g, 'Ì')
+                             .replace(/%C3%93/g, 'Ó')
+                             .replace(/%C3%92/g, 'Ò')
+                             .replace(/%C3%94/g, 'Ô')
+                             .replace(/%C3%95/g, 'Õ')
+                             .replace(/%C3%9A/g, 'Ú')
+                             .replace(/%C3%99/g, 'Ù');
       
       // Substitui underscores por espaços para melhor legibilidade
       return decodedStr.replace(/_/g, ' ');
     } catch (e) {
-      // Se falhar a decodificação, retorna a string original com underscores substituídos
-      return str.replace(/_/g, ' ');
+      // Se falhar a decodificação, tenta lidar com a string original diretamente
+      let result = str.replace(/_/g, ' ');
+      
+      // Tenta substituir manualmente sequências de caracteres UTF-8 comuns
+      result = result.replace(/%C3%A1/g, 'á')
+                     .replace(/%C3%A0/g, 'à')
+                     .replace(/%C3%A2/g, 'â')
+                     .replace(/%C3%A3/g, 'ã')
+                     .replace(/%C3%A9/g, 'é')
+                     .replace(/%C3%A8/g, 'è')
+                     .replace(/%C3%AA/g, 'ê')
+                     .replace(/%C3%AD/g, 'í')
+                     .replace(/%C3%AC/g, 'ì')
+                     .replace(/%C3%B3/g, 'ó')
+                     .replace(/%C3%B2/g, 'ò')
+                     .replace(/%C3%B4/g, 'ô')
+                     .replace(/%C3%B5/g, 'õ')
+                     .replace(/%C3%BA/g, 'ú')
+                     .replace(/%C3%B9/g, 'ù')
+                     .replace(/%C3%A7/g, 'ç')
+                     .replace(/%C3%87/g, 'Ç')
+                     .replace(/%C3%81/g, 'Á')
+                     .replace(/%C3%80/g, 'À')
+                     .replace(/%C3%82/g, 'Â')
+                     .replace(/%C3%83/g, 'Ã')
+                     .replace(/%C3%89/g, 'É')
+                     .replace(/%C3%88/g, 'È')
+                     .replace(/%C3%8A/g, 'Ê')
+                     .replace(/%C3%8D/g, 'Í')
+                     .replace(/%C3%8C/g, 'Ì')
+                     .replace(/%C3%93/g, 'Ó')
+                     .replace(/%C3%92/g, 'Ò')
+                     .replace(/%C3%94/g, 'Ô')
+                     .replace(/%C3%95/g, 'Õ')
+                     .replace(/%C3%9A/g, 'Ú')
+                     .replace(/%C3%99/g, 'Ù');
+      
+      return result;
     }
   };
 

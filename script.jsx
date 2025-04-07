@@ -18,30 +18,89 @@ const SEED_TOPICS = [
   "Alimento", "Religião", "Mitologia", "Economia", "Medicina", "Arquitetura", "Transporte"
 ];
 
+// Lista de tópicos contrastantes para gerar pares mais interessantes
+const CONTRASTING_TOPICS = [
+  { source: ["Arte", "Música", "Literatura", "Teatro", "Dança", "Pintura"], 
+    target: ["Ciência", "Tecnologia", "Matemática", "Física", "Química"] },
+  { source: ["Esporte", "Futebol", "Olimpíadas", "Atletismo"],
+    target: ["História", "Política", "Guerra", "Revolução"] },
+  { source: ["Gastronomia", "Culinária", "Alimentos", "Bebidas"],
+    target: ["Cultura", "Sociedade", "Filosofia", "Religião"] },
+  { source: ["Natureza", "Biologia", "Ecologia", "Meio_ambiente"],
+    target: ["Indústria", "Tecnologia", "Urbanização", "Economia"] },
+  { source: ["Cinema", "Televisão", "Entretenimento", "Jogos"],
+    target: ["Ciência", "Educação", "Medicina", "Pesquisa"] }
+];
+
+// Função para obter o display title e informações do artigo
+const getArticleInfo = async (title) => {
+  try {
+    const encodedTitle = encodeURIComponent(title);
+    const response = await fetch(
+      `https://pt.wikipedia.org/w/api.php?action=query&format=json&origin=*&titles=${encodedTitle}&prop=info|langlinks|pageprops&redirects&inprop=displaytitle`
+    );
+    const data = await response.json();
+    
+    if (data.error) return null;
+    
+    const pages = data.query.pages;
+    const pageId = Object.keys(pages)[0];
+    const page = pages[pageId];
+    
+    // Verificar se é uma página válida
+    if (pageId === '-1' || !page) return null;
+    
+    // Verificar se é um redirecionamento
+    if (page.redirect) return null;
+    
+    // Verificar se tem versão em pt-pt (evitar conteúdo de Portugal)
+    if (page.langlinks && page.langlinks.some(l => l.lang === 'pt')) return null;
+    
+    // Obter o título de exibição formatado
+    let displayTitle = page.displaytitle || title;
+    displayTitle = displayTitle.replace(/_/g, ' ')
+                              .replace(/\u200B/g, '') // Remover zero-width spaces
+                              .replace(/<[^>]*>/g, ''); // Remover tags HTML
+    
+    return {
+      title: title,
+      displayTitle: displayTitle,
+      isValid: true
+    };
+  } catch (error) {
+    console.error(`Erro ao obter informações do artigo "${title}":`, error);
+    return null;
+  }
+};
+
 // Função para obter links de um artigo da Wikipedia
 const getWikipediaLinks = async (title) => {
   try {
     const encodedTitle = encodeURIComponent(title);
     const response = await fetch(
-      `https://pt-br.wikipedia.org/w/api.php?action=query&format=json&origin=*&titles=${encodedTitle}&prop=links&pllimit=500&plnamespace=0`
+      `https://pt.wikipedia.org/w/api.php?action=query&format=json&origin=*&titles=${encodedTitle}&prop=links&pllimit=500&plnamespace=0`
     );
     const data = await response.json();
     
-    if (data.error) {
-      console.error(`Erro na API da Wikipedia: ${data.error.info}`);
-      return [];
-    }
+    if (data.error) return [];
     
     const pages = data.query.pages;
     const pageId = Object.keys(pages)[0];
     
-    if (!pages[pageId].links) {
-      return [];
-    }
+    if (!pages[pageId].links) return [];
     
-    return pages[pageId].links
-      .map(link => link.title)
-      .filter(title => !title.includes(':') && !title.includes('/'));
+    // Filtrar e processar os links
+    const links = await Promise.all(
+      pages[pageId].links
+        .filter(link => !link.title.includes(':') && !link.title.includes('/'))
+        .map(async link => {
+          const info = await getArticleInfo(link.title);
+          return info;
+        })
+    );
+    
+    // Remover nulos e redirecionamentos
+    return links.filter(link => link && link.isValid);
   } catch (error) {
     console.error(`Erro ao obter links do artigo "${title}":`, error);
     return [];
@@ -62,20 +121,20 @@ const checkPathPossibility = async (startArticle, endArticle, maxClicks = 5, min
     
     const links = await getWikipediaLinks(currentArticle);
     for (const link of links) {
-      if (link === endArticle) {
+      if (link.title === endArticle) {
         const finalClicks = clicks + 1;
         if (finalClicks >= minClicks && finalClicks <= maxClicks) {
           return {
             possible: true,
             clicks: finalClicks,
-            path: [...path, link]
+            path: [...path, link.title]
           };
         }
       }
       
-      if (!visited.has(link) && clicks < maxClicks - 1) {
-        visited.add(link);
-        queue.push([link, clicks + 1, [...path, link]]);
+      if (!visited.has(link.title) && clicks < maxClicks - 1) {
+        visited.add(link.title);
+        queue.push([link.title, clicks + 1, [...path, link.title]]);
       }
     }
     
@@ -92,48 +151,50 @@ const checkPathPossibility = async (startArticle, endArticle, maxClicks = 5, min
   };
 };
 
-// Função para gerar um par válido de artigos
+// Função para gerar um par válido de artigos mais criativo
 const generateValidPair = async () => {
-  const maxAttempts = 10;
+  const maxAttempts = 15; // Aumentado para ter mais chances de encontrar pares interessantes
   let attempts = 0;
   
   while (attempts < maxAttempts) {
     try {
-      // Escolher um tópico aleatório como semente
-      const seedTopic = SEED_TOPICS[Math.floor(Math.random() * SEED_TOPICS.length)];
+      // Escolher um par de tópicos contrastantes
+      const contrastingPair = CONTRASTING_TOPICS[Math.floor(Math.random() * CONTRASTING_TOPICS.length)];
       
-      // Obter links do artigo semente
-      const seedLinks = await getWikipediaLinks(seedTopic);
-      if (seedLinks.length === 0) {
+      // Escolher um artigo fonte e destino aleatório dos tópicos contrastantes
+      const sourceTopic = contrastingPair.source[Math.floor(Math.random() * contrastingPair.source.length)];
+      const targetTopic = contrastingPair.target[Math.floor(Math.random() * contrastingPair.target.length)];
+      
+      // Obter links para os tópicos
+      const sourceLinks = await getWikipediaLinks(sourceTopic);
+      const targetLinks = await getWikipediaLinks(targetTopic);
+      
+      if (sourceLinks.length === 0 || targetLinks.length === 0) {
         attempts++;
         continue;
       }
       
-      // Escolher artigo inicial aleatório dos links da semente
-      const startArticle = seedLinks[Math.floor(Math.random() * seedLinks.length)];
+      // Escolher artigos aleatórios dos links
+      const startArticle = sourceLinks[Math.floor(Math.random() * sourceLinks.length)];
+      const endArticle = targetLinks[Math.floor(Math.random() * targetLinks.length)];
       
-      // Obter links do artigo inicial
-      const startLinks = await getWikipediaLinks(startArticle);
-      if (startLinks.length === 0) {
+      if (!startArticle || !endArticle) {
         attempts++;
         continue;
       }
       
-      // Escolher um artigo final distante
-      for (let i = 0; i < 5; i++) {
-        const randomEndIndex = Math.floor(Math.random() * startLinks.length);
-        const potentialEndArticle = startLinks[randomEndIndex];
-        
-        // Verificar se o caminho é possível e está dentro dos limites
-        const pathResult = await checkPathPossibility(startArticle, potentialEndArticle);
-        
-        if (pathResult.possible) {
-          return {
-            start: startArticle,
-            end: potentialEndArticle,
-            difficulty: pathResult.clicks <= 3 ? "easy" : pathResult.clicks === 4 ? "medium" : "hard"
-          };
-        }
+      // Verificar se o caminho é possível e está dentro dos limites
+      const pathResult = await checkPathPossibility(startArticle.title, endArticle.title);
+      
+      if (pathResult.possible) {
+        return {
+          start: startArticle.title,
+          startDisplay: startArticle.displayTitle,
+          end: endArticle.title,
+          endDisplay: endArticle.displayTitle,
+          difficulty: pathResult.clicks <= 3 ? "easy" : pathResult.clicks === 4 ? "medium" : "hard",
+          expectedClicks: pathResult.clicks
+        };
       }
     } catch (error) {
       console.error("Erro ao gerar par:", error);
@@ -145,9 +206,32 @@ const generateValidPair = async () => {
   // Se falhar em gerar um par válido, usar um par de backup com links garantidos
   return {
     start: "Brasil",
+    startDisplay: "Brasil",
     end: "Ciência",
-    difficulty: "medium"
+    endDisplay: "Ciência",
+    difficulty: "medium",
+    expectedClicks: 3
   };
+};
+
+// Função para normalizar strings de títulos de artigos
+const normalizeString = (str) => {
+  try {
+    // Decodificar URL se necessário
+    let decodedStr = str;
+    try {
+      decodedStr = decodeURIComponent(str);
+    } catch (e) {
+      // Se não conseguir decodificar, usa a string original
+    }
+    
+    // Substituir underscores por espaços
+    decodedStr = decodedStr.replace(/_/g, ' ');
+    
+    return decodedStr;
+  } catch (e) {
+    return str;
+  }
 };
 
 // Componentes básicos para substituir os do Spark
@@ -402,6 +486,20 @@ function App() {
     });
   };
 
+  // Função para resetar o jogo e voltar ao menu
+  const resetGame = () => {
+    setShowMenu(true);
+    setGameState({
+      startArticle: "",
+      endArticle: "",
+      clicksLeft: 5,
+      path: [],
+      isComplete: false,
+      showCelebration: false
+    });
+    setCurrentArticle("");
+  };
+
   // Initialize game with random pair
   const startGame = async () => {
     setLoading(true);
@@ -411,7 +509,10 @@ function App() {
         startArticle: pair.start,
         endArticle: pair.end,
         clicksLeft: 5,
-        path: [pair.start],
+        path: [{
+          title: pair.start,
+          displayTitle: pair.startDisplay
+        }],
         isComplete: false,
         showCelebration: false
       });
@@ -429,7 +530,10 @@ function App() {
         startArticle: backupPair.start,
         endArticle: backupPair.end,
         clicksLeft: 5,
-        path: [backupPair.start],
+        path: [{
+          title: backupPair.start,
+          displayTitle: backupPair.start
+        }],
         isComplete: false,
         showCelebration: false
       });
@@ -509,7 +613,7 @@ function App() {
   };
 
   // Handle link clicks in the article
-  const handleLinkClick = (event) => {
+  const handleLinkClick = async (event) => {
     const link = event.target.closest('a[data-wiki-link]');
     if (!link) return;
     
@@ -517,9 +621,16 @@ function App() {
     const title = link.getAttribute('data-wiki-link');
     
     if (gameState.clicksLeft > 0 && !gameState.isComplete) {
-      const newPath = [...gameState.path, title];
+      // Obter informações do artigo incluindo o displayTitle
+      const articleInfo = await getArticleInfo(title);
+      if (!articleInfo) return;
       
-      // Verifica se encontrou o artigo de destino de forma mais flexível
+      const newPath = [...gameState.path, {
+        title: articleInfo.title,
+        displayTitle: articleInfo.displayTitle
+      }];
+      
+      // Verifica se encontrou o artigo de destino
       const isComplete = checkArticleMatch(title, gameState.endArticle);
       
       setGameState(prev => ({
@@ -527,7 +638,7 @@ function App() {
         clicksLeft: prev.clicksLeft - 1,
         path: newPath,
         isComplete,
-        showCelebration: isComplete // Ativar celebração se completar
+        showCelebration: isComplete
       }));
       
       loadArticle(title);
@@ -673,149 +784,7 @@ function App() {
       return true;
     }
     
-    // Verificar se apenas diferem em letras acentuadas
-    // Criar mapas de caracteres acentuados comuns
-    const accentMappings = {
-      'a': ['á', 'à', 'â', 'ã'],
-      'e': ['é', 'è', 'ê'],
-      'i': ['í', 'ì', 'î'],
-      'o': ['ó', 'ò', 'ô', 'õ'],
-      'u': ['ú', 'ù', 'û'],
-      'c': ['ç'],
-      'n': ['ñ']
-    };
-    
-    // Função para substituir caracteres acentuados com várias possibilidades
-    const getAllPossibleForms = (str) => {
-      const normalizedStr = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-      let variations = [normalizedStr];
-      
-      // Para cada letra que pode ter acento, gerar variações
-      for (const [base, accents] of Object.entries(accentMappings)) {
-        const positions = [];
-        for (let i = 0; i < normalizedStr.length; i++) {
-          if (normalizedStr[i] === base) {
-            positions.push(i);
-          }
-        }
-        
-        if (positions.length > 0) {
-          const newVariations = [...variations];
-          for (const pos of positions) {
-            for (const accent of accents) {
-              for (const variant of variations) {
-                const newVariant = variant.substring(0, pos) + accent + variant.substring(pos + 1);
-                newVariations.push(newVariant);
-              }
-            }
-          }
-          variations = [...newVariations];
-        }
-      }
-      
-      return variations;
-    };
-    
-    // Gerar possíveis variações dos dois títulos e verificar se há correspondência
-    const currentVariations = getAllPossibleForms(simpleCurrentNormalized);
-    const targetVariations = getAllPossibleForms(simpleTargetNormalized);
-    
-    for (const curVar of currentVariations) {
-      if (targetVariations.includes(curVar)) {
-        return true;
-      }
-    }
-    
     return false;
-  };
-
-  // Reset game with a new random pair
-  const resetGame = () => {
-    setShowMenu(true);
-  };
-
-  // Função para normalizar strings (decodificar URLs e limpar Unicode)
-  const normalizeString = (str) => {
-    try {
-      // Primeiro tenta decodificar se for uma string codificada em URL
-      let decodedStr = decodeURIComponent(str);
-      
-      // Substituir caracteres Unicode codificados em forma %C3%xx
-      decodedStr = decodedStr.replace(/%C3%A1/g, 'á')
-                             .replace(/%C3%A0/g, 'à')
-                             .replace(/%C3%A2/g, 'â')
-                             .replace(/%C3%A3/g, 'ã')
-                             .replace(/%C3%A9/g, 'é')
-                             .replace(/%C3%A8/g, 'è')
-                             .replace(/%C3%AA/g, 'ê')
-                             .replace(/%C3%AD/g, 'í')
-                             .replace(/%C3%AC/g, 'ì')
-                             .replace(/%C3%B3/g, 'ó')
-                             .replace(/%C3%B2/g, 'ò')
-                             .replace(/%C3%B4/g, 'ô')
-                             .replace(/%C3%B5/g, 'õ')
-                             .replace(/%C3%BA/g, 'ú')
-                             .replace(/%C3%B9/g, 'ù')
-                             .replace(/%C3%A7/g, 'ç')
-                             .replace(/%C3%87/g, 'Ç')
-                             .replace(/%C3%81/g, 'Á')
-                             .replace(/%C3%80/g, 'À')
-                             .replace(/%C3%82/g, 'Â')
-                             .replace(/%C3%83/g, 'Ã')
-                             .replace(/%C3%89/g, 'É')
-                             .replace(/%C3%88/g, 'È')
-                             .replace(/%C3%8A/g, 'Ê')
-                             .replace(/%C3%8D/g, 'Í')
-                             .replace(/%C3%8C/g, 'Ì')
-                             .replace(/%C3%93/g, 'Ó')
-                             .replace(/%C3%92/g, 'Ò')
-                             .replace(/%C3%94/g, 'Ô')
-                             .replace(/%C3%95/g, 'Õ')
-                             .replace(/%C3%9A/g, 'Ú')
-                             .replace(/%C3%99/g, 'Ù');
-      
-      // Substitui underscores por espaços para melhor legibilidade
-      return decodedStr.replace(/_/g, ' ');
-    } catch (e) {
-      // Se falhar a decodificação, tenta lidar com a string original diretamente
-      let result = str.replace(/_/g, ' ');
-      
-      // Tenta substituir manualmente sequências de caracteres UTF-8 comuns
-      result = result.replace(/%C3%A1/g, 'á')
-                     .replace(/%C3%A0/g, 'à')
-                     .replace(/%C3%A2/g, 'â')
-                     .replace(/%C3%A3/g, 'ã')
-                     .replace(/%C3%A9/g, 'é')
-                     .replace(/%C3%A8/g, 'è')
-                     .replace(/%C3%AA/g, 'ê')
-                     .replace(/%C3%AD/g, 'í')
-                     .replace(/%C3%AC/g, 'ì')
-                     .replace(/%C3%B3/g, 'ó')
-                     .replace(/%C3%B2/g, 'ò')
-                     .replace(/%C3%B4/g, 'ô')
-                     .replace(/%C3%B5/g, 'õ')
-                     .replace(/%C3%BA/g, 'ú')
-                     .replace(/%C3%B9/g, 'ù')
-                     .replace(/%C3%A7/g, 'ç')
-                     .replace(/%C3%87/g, 'Ç')
-                     .replace(/%C3%81/g, 'Á')
-                     .replace(/%C3%80/g, 'À')
-                     .replace(/%C3%82/g, 'Â')
-                     .replace(/%C3%83/g, 'Ã')
-                     .replace(/%C3%89/g, 'É')
-                     .replace(/%C3%88/g, 'È')
-                     .replace(/%C3%8A/g, 'Ê')
-                     .replace(/%C3%8D/g, 'Í')
-                     .replace(/%C3%8C/g, 'Ì')
-                     .replace(/%C3%93/g, 'Ó')
-                     .replace(/%C3%92/g, 'Ò')
-                     .replace(/%C3%94/g, 'Ô')
-                     .replace(/%C3%95/g, 'Õ')
-                     .replace(/%C3%9A/g, 'Ú')
-                     .replace(/%C3%99/g, 'Ù');
-      
-      return result;
-    }
   };
 
   // Componente para o botão de alternância de tema
@@ -944,7 +913,7 @@ function App() {
                 {gameState.path.map((article, index) => (
                   <React.Fragment key={index}>
                     <span className="path-item" style={{animationDelay: `${index * 0.1}s`}}>
-                      {normalizeString(article)}
+                      {typeof article === 'string' ? normalizeString(article) : article.displayTitle}
                     </span>
                     {index < gameState.path.length - 1 && (
                       <CaretRight size={20} className="path-arrow" style={{animationDelay: `${index * 0.1 + 0.05}s`}} />

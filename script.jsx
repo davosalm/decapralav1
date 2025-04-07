@@ -145,6 +145,62 @@ const PageContainer = ({ children, maxWidth = "large" }) => {
   );
 };
 
+// Componente de animação para celebração
+const Celebration = () => {
+  const [confetti, setConfetti] = React.useState([]);
+  const confettiColors = ['#4361ee', '#4895ef', '#7209b7', '#f72585', '#4cc9f0', '#f9c74f'];
+  
+  React.useEffect(() => {
+    // Criar 50 confetes com posições e cores aleatórias
+    const newConfetti = [...Array(50)].map((_, i) => ({
+      id: i,
+      x: Math.random() * window.innerWidth,
+      y: -20 - Math.random() * 100,
+      color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+      size: 5 + Math.random() * 10,
+      animationDuration: 2 + Math.random() * 2
+    }));
+    
+    setConfetti(newConfetti);
+    
+    return () => {
+      // Limpar áudio se necessário
+    };
+  }, []);
+
+  return (
+    <div className="celebration-container">
+      {confetti.map((c) => (
+        <div
+          key={c.id}
+          className="confetti"
+          style={{
+            left: c.x + 'px',
+            top: c.y + 'px',
+            width: c.size + 'px',
+            height: c.size + 'px',
+            backgroundColor: c.color,
+            animationDuration: c.animationDuration + 's'
+          }}
+        />
+      ))}
+      
+      {/* Sparkles em torno do troféu */}
+      {[...Array(5)].map((_, i) => (
+        <div
+          key={i}
+          className="sparkle"
+          style={{
+            top: `${50 + Math.sin(i / 5 * Math.PI * 2) * 30}%`,
+            left: `${50 + Math.cos(i / 5 * Math.PI * 2) * 30}%`,
+            animationDelay: `${i * 0.3}s`
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
 function App() {
   const [showMenu, setShowMenu] = React.useState(true);
   const [showTutorial, setShowTutorial] = React.useState(false);
@@ -155,7 +211,8 @@ function App() {
     endArticle: "",
     clicksLeft: 5,
     path: [],
-    isComplete: false
+    isComplete: false,
+    showCelebration: false
   });
   const [loading, setLoading] = React.useState(false);
 
@@ -199,7 +256,8 @@ function App() {
       endArticle: randomPair.end,
       clicksLeft: 5,
       path: [randomPair.start],
-      isComplete: false
+      isComplete: false,
+      showCelebration: false
     });
     loadArticle(randomPair.start);
     setShowMenu(false);
@@ -270,7 +328,8 @@ function App() {
         ...prev,
         clicksLeft: prev.clicksLeft - 1,
         path: newPath,
-        isComplete
+        isComplete,
+        showCelebration: isComplete // Ativar celebração se completar
       }));
       
       loadArticle(title);
@@ -324,6 +383,14 @@ function App() {
                     Como Jogar
                   </Button>
                 </div>
+                
+                {/* Informação do criador */}
+                <div className="creator-info">
+                  <p>Desenvolvido por David Silva</p>
+                  <a href="mailto:davosalm@gmail.com" className="creator-email">
+                    davosalm@gmail.com
+                  </a>
+                </div>
               </div>
             </Card>
           </div>
@@ -363,6 +430,7 @@ function App() {
   return (
     <div className="app-container">
       <ThemeToggle />
+      {gameState.showCelebration && <Celebration />}
       <PageContainer maxWidth="large">
         <div className="py-6">
           <Card className="p-6">
@@ -424,8 +492,10 @@ function App() {
 
             {gameState.isComplete && (
               <div className="game-alert game-alert-success">
-                <Trophy size={24} weight="fill" className="text-yellow-500" />
-                <span className="text-green-700 font-medium">
+                <div className="trophy-celebration">
+                  <Trophy size={32} weight="fill" className="text-yellow-500" />
+                </div>
+                <span className="victory-text">
                   Parabéns! Você conseguiu chegar ao destino em <strong>{5 - gameState.clicksLeft}</strong> cliques!
                 </span>
               </div>

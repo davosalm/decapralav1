@@ -1032,10 +1032,18 @@ function App() {
     setShowMenu(true);
   };
 
-  // Função para normalizar strings (remover acentos)
+  // Função para normalizar strings (decodificar URLs)
   const normalizeString = (str) => {
-    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-               .replace(/_/g, ' ');
+    try {
+      // Primeiro tenta decodificar se for uma string codificada em URL
+      const decodedStr = decodeURIComponent(str);
+      
+      // Substitui underscores por espaços para melhor legibilidade
+      return decodedStr.replace(/_/g, ' ');
+    } catch (e) {
+      // Se falhar a decodificação, retorna a string original com underscores substituídos
+      return str.replace(/_/g, ' ');
+    }
   };
 
   // Componente para o botão de alternância de tema
@@ -1176,7 +1184,7 @@ function App() {
               </div>
             </div>
             
-            {/* Path visualization - com normalização para remover acentos */}
+            {/* Path visualization - com tratamento para URLs codificadas */}
             <div className="path-container">
               <div className="flex items-center gap-2 flex-nowrap min-w-max">
                 {gameState.path.map((article, index) => (

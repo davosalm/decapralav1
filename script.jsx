@@ -744,7 +744,9 @@ function App() {
     showCelebration: false
   });
   const [loading, setLoading] = React.useState(false);
-  const [animationVisible, setAnimationVisible] = React.useState(false); // Estado para controlar a visibilidade das animações
+  const [animationVisible, setAnimationVisible] = React.useState(false);
+  const [showDebug, setShowDebug] = React.useState(false);
+  const [debugMessage, setDebugMessage] = React.useState("");
 
   // Aplica o tema escuro ao documento
   React.useEffect(() => {
@@ -766,7 +768,82 @@ function App() {
     setTimeout(() => {
       setAnimationVisible(true);
     }, 300);
+
+    // Verificar a validez de todos os pares quando está em modo de desenvolvimento
+    if (process.env.NODE_ENV === 'development') {
+      const queryParams = new URLSearchParams(window.location.search);
+      if (queryParams.get('validatePairs') === 'true') {
+        validateAllPairs();
+      }
+    }
   }, []);
+
+  // Função para validar a existência de um artigo na Wikipedia
+  const validateWikipediaArticle = async (title) => {
+    try {
+      const encodedTitle = encodeURIComponent(title);
+      const response = await fetch(
+        `https://pt.wikipedia.org/w/api.php?action=query&titles=${encodedTitle}&format=json&origin=*`
+      );
+      const data = await response.json();
+      
+      // Se a API retornar "missing" para a página, o artigo não existe
+      const pages = data.query.pages;
+      const pageId = Object.keys(pages)[0];
+      
+      return !('missing' in pages[pageId]);
+    } catch (error) {
+      console.error(`Erro ao validar artigo "${title}":`, error);
+      return false;
+    }
+  };
+
+  // Função para validar um par específico
+  const validatePair = async (pair) => {
+    const startExists = await validateWikipediaArticle(pair.start);
+    const endExists = await validateWikipediaArticle(pair.end);
+    
+    return {
+      pair,
+      startExists,
+      endExists,
+      isValid: startExists && endExists
+    };
+  };
+  
+  // Função para validar todos os pares (útil para desenvolvimento)
+  const validateAllPairs = async () => {
+    setDebugMessage("Iniciando validação de pares...");
+    setShowDebug(true);
+    
+    const results = {
+      valid: [],
+      invalid: []
+    };
+    
+    // Limitar a validação para não sobrecarregar a API
+    const pairsToValidate = GAME_PAIRS.slice(0, 50); // valida apenas 50 de cada vez
+    
+    for (const pair of pairsToValidate) {
+      const result = await validatePair(pair);
+      if (result.isValid) {
+        results.valid.push(pair);
+      } else {
+        results.invalid.push({
+          pair: pair,
+          startExists: result.startExists,
+          endExists: result.endExists
+        });
+      }
+      
+      setDebugMessage(prev => `${prev}\nValidando: ${pair.start} -> ${pair.end} (${result.isValid ? 'Válido' : 'Inválido'})`);
+    }
+    
+    console.log('Resultado da validação:', results);
+    setDebugMessage(prev => `${prev}\n\nValidação concluída!\nPares válidos: ${results.valid.length}\nPares inválidos: ${results.invalid.length}\nVeja detalhes no console.`);
+    
+    return results;
+  };
 
   // Toggle tema escuro/claro
   const toggleDarkMode = () => {
@@ -802,16 +879,35 @@ function App() {
   const loadArticle = async (title) => {
     setLoading(true);
     try {
+      // Usando encodeURIComponent para codificar corretamente o título do artigo
+      const encodedTitle = encodeURIComponent(title);
       const response = await fetch(
-        `https://pt.wikipedia.org/w/api.php?action=parse&page=${title}&format=json&origin=*&prop=text|categories|sections`
+        `https://pt.wikipedia.org/w/api.php?action=parse&page=${encodedTitle}&format=json&origin=*&prop=text|categories|sections`
       );
       const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(`Erro da API Wikipedia: ${data.error.info}`);
+      }
+      
       if (data.parse && data.parse.text) {
         const content = data.parse.text["*"];
         setCurrentArticle(processWikiContent(content));
+      } else {
+        // Artigo não encontrado, mostrar erro
+        setCurrentArticle(`<div class="wiki-error">
+          <h2>Artigo não encontrado</h2>
+          <p>O artigo "${title}" não foi encontrado na Wikipedia em português.</p>
+          <p>Isso pode ser um erro no par de artigos. Tente iniciar um novo jogo.</p>
+        </div>`);
       }
     } catch (error) {
       console.error("Error loading article:", error);
+      setCurrentArticle(`<div class="wiki-error">
+        <h2>Erro ao carregar artigo</h2>
+        <p>Ocorreu um erro ao carregar "${title}".</p>
+        <p>Detalhes: ${error.message}</p>
+      </div>`);
     }
     setLoading(false);
   };
@@ -857,7 +953,9 @@ function App() {
     
     if (gameState.clicksLeft > 0 && !gameState.isComplete) {
       const newPath = [...gameState.path, title];
-      const isComplete = title === gameState.endArticle;
+      
+      // Verifica se encontrou o artigo de destino de forma mais flexível
+      const isComplete = checkArticleMatch(title, gameState.endArticle);
       
       setGameState(prev => ({
         ...prev,
@@ -869,6 +967,64 @@ function App() {
       
       loadArticle(title);
     }
+  };
+
+  // Função para comparar títulos de artigos de forma flexível
+  const checkArticleMatch = (currentArticle, targetArticle) => {
+    // Verificação exata
+    if (currentArticle === targetArticle) return true;
+    
+    // Normalizar ambos os títulos (remover acentos, underscores e transformar em minúsculas)
+    const normalize = (str) => {
+      return str.normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')  // remove acentos
+                .replace(/_/g, ' ')               // substitui underscores por espaços
+                .toLowerCase()                    // converte para minúsculas
+                .trim();                          // remove espaços extras
+    };
+    
+    const normalizedCurrent = normalize(currentArticle);
+    const normalizedTarget = normalize(targetArticle);
+    
+    // Verificação normalizada
+    if (normalizedCurrent === normalizedTarget) return true;
+    
+    // Lista de variações conhecidas para artigos específicos
+    const articleVariations = {
+      'harald_bluetooth': ['haroldo_i_bluetooth', 'haroldo_bluetooth', 'haroldo_i_da_dinamarca', 'harald_i_bluetooth'],
+      'albert_einstein': ['einstein', 'albert_eintein'],
+      'segunda_guerra_mundial': ['2ª_guerra_mundial', 'ii_guerra_mundial', 'segunda_guerra', '2a_guerra_mundial'],
+      'primeira_guerra_mundial': ['1ª_guerra_mundial', 'i_guerra_mundial', 'primeira_guerra', '1a_guerra_mundial'],
+      'revolução_industrial': ['industria', 'industrializacao', 'industrialização', 'revolucao_industrial'],
+      'reino_unido': ['inglaterra', 'gra_bretanha', 'grã_bretanha', 'great_britain'],
+      'mudanças_climáticas': ['aquecimento_global', 'mudanca_climatica', 'crise_climatica'],
+      'escocia': ['escócia', 'scotland', 'reino_da_escócia'],
+      'leonardo_da_vinci': ['da_vinci', 'leonardo'],
+      'inteligência_artificial': ['ia', 'ai', 'inteligencia_artificial'],
+      'estados_unidos': ['eua', 'america', 'américa', 'usa', 'united_states'],
+      'jogos_olímpicos': ['jogos_olimpicos', 'olimpíadas', 'olimpiadas'],
+      'filosofia_grega': ['filosofia_da_grecia_antiga', 'filosofos_gregos'],
+      'egito_antigo': ['antigo_egito', 'civilização_egípcia', 'civilizacao_egipcia'],
+      'grécia_antiga': ['grecia_antiga', 'antiga_grécia', 'antiga_grecia']
+    };
+    
+    // Verificar se há correspondência em variações conhecidas
+    for (const [base, variations] of Object.entries(articleVariations)) {
+      if (normalize(base) === normalizedTarget && variations.some(v => normalize(v) === normalizedCurrent)) {
+        return true;
+      }
+      if (normalize(base) === normalizedCurrent && variations.some(v => normalize(v) === normalizedTarget)) {
+        return true;
+      }
+    }
+    
+    // Verificar se um é parte significativa do outro (para casos como "Platão" vs "Filosofia_de_Platão")
+    if ((normalizedCurrent.includes(normalizedTarget) && normalizedTarget.length > 5) || 
+        (normalizedTarget.includes(normalizedCurrent) && normalizedCurrent.length > 5)) {
+      return true;
+    }
+    
+    return false;
   };
 
   // Reset game with a new random pair
@@ -932,10 +1088,18 @@ function App() {
                   >
                     Como Jogar
                   </Button>
+                  <Button
+                    icon={<Lightning />}
+                    onClick={validateAllPairs}
+                    className={`btn-block ${animationVisible ? 'animate-slide-up' : 'opacity-0'}`}
+                    style={{animationDelay: '1.1s'}}
+                  >
+                    Validar Artigos
+                  </Button>
                 </div>
                 
                 {/* Informação do criador */}
-                <div className={`creator-info ${animationVisible ? 'animate-fade-in' : 'opacity-0'}`} style={{animationDelay: '1.1s'}}>
+                <div className={`creator-info ${animationVisible ? 'animate-fade-in' : 'opacity-0'}`} style={{animationDelay: '1.3s'}}>
                   <p>Desenvolvido por David Silva</p>
                   <a href="mailto:davosalm@gmail.com" className="creator-email">
                     davosalm@gmail.com
@@ -984,6 +1148,13 @@ function App() {
     <div className="app-container">
       <ThemeToggle />
       {gameState.showCelebration && <Celebration />}
+      {showDebug && (
+        <div className="debug-panel">
+          <h3>Painel de Debug</h3>
+          <pre>{debugMessage}</pre>
+          <button onClick={() => setShowDebug(false)} className="btn btn-sm">Fechar</button>
+        </div>
+      )}
       <PageContainer maxWidth="large">
         <div className="py-6">
           <Card className="p-6">

@@ -208,405 +208,133 @@ const GAME_PAIRS = [
   { start: "Nike", end: "Jogos_Olímpicos", difficulty: "medium" },
   { start: "Barbie", end: "Feminismo", difficulty: "medium" },
   { start: "Rolex", end: "Primeira_Guerra_Mundial", difficulty: "medium" },
-  
-  // Novos pares (400 adicionais)
-  // Pares fáceis (100)
-  { start: "Lasanha", end: "Italia", difficulty: "easy" },
-  { start: "Teatro", end: "Grecia_Antiga", difficulty: "easy" },
-  { start: "Arquitetura", end: "Leonardo_da_Vinci", difficulty: "easy" },
-  { start: "Gioconda", end: "Louvre", difficulty: "easy" },
-  { start: "Telescopio", end: "Galileu_Galilei", difficulty: "easy" },
-  { start: "Piano", end: "Mozart", difficulty: "easy" },
-  { start: "Violino", end: "Antonio_Vivaldi", difficulty: "easy" },
-  { start: "Guitar", end: "Rock", difficulty: "easy" },
-  { start: "Saxofone", end: "Jazz", difficulty: "easy" },
-  { start: "Opera", end: "Italia", difficulty: "easy" },
-  { start: "Ballet", end: "Russia", difficulty: "easy" },
-  { start: "Cinema", end: "Hollywood", difficulty: "easy" },
-  { start: "Fotografia", end: "Daguerreotipo", difficulty: "easy" },
-  { start: "Internet", end: "ARPANET", difficulty: "easy" },
-  { start: "Espresso", end: "Italia", difficulty: "easy" },
-  { start: "Cerveja", end: "Alemanha", difficulty: "easy" },
-  { start: "Whisky", end: "Escocia", difficulty: "easy" },
-  { start: "Tequila", end: "Mexico", difficulty: "easy" },
-  { start: "Caipirinha", end: "Brasil", difficulty: "easy" },
-  { start: "Bicicleta", end: "Tour_de_France", difficulty: "easy" },
-  { start: "Telefone", end: "Alexander_Graham_Bell", difficulty: "easy" },
-  { start: "Aviao", end: "Irmãos_Wright", difficulty: "easy" },
-  { start: "Trem", end: "Revolução_Industrial", difficulty: "easy" },
-  { start: "Locomotiva", end: "Stephenson", difficulty: "easy" },
-  { start: "Carro", end: "Henry_Ford", difficulty: "easy" },
-  { start: "Roda", end: "Mesopotamia", difficulty: "easy" },
-  { start: "Fogo", end: "Idade_da_Pedra", difficulty: "easy" },
-  { start: "Papel", end: "China", difficulty: "easy" },
-  { start: "Plastico", end: "Petroleo", difficulty: "easy" },
-  { start: "Vidro", end: "Areia", difficulty: "easy" },
-  { start: "Aco", end: "Siderurgia", difficulty: "easy" },
-  { start: "Madeira", end: "Floresta", difficulty: "easy" },
-  { start: "Ouro", end: "Corrida_do_ouro", difficulty: "easy" },
-  { start: "Prata", end: "Mexico", difficulty: "easy" },
-  { start: "Diamante", end: "Africa", difficulty: "easy" },
-  { start: "Rubis", end: "Joalheria", difficulty: "easy" },
-  { start: "Titanio", end: "Aeronautica", difficulty: "easy" },
-  { start: "Cobre", end: "Eletricidade", difficulty: "easy" },
-  { start: "Aluminio", end: "Latas", difficulty: "easy" },
-  { start: "Carbono", end: "Diamante", difficulty: "easy" },
-  { start: "Oxigenio", end: "Respiracao", difficulty: "easy" },
-  { start: "Hidrogenio", end: "Agua", difficulty: "easy" },
-  { start: "Helio", end: "Baloes", difficulty: "easy" },
-  { start: "Uranio", end: "Energia_nuclear", difficulty: "easy" },
-  { start: "Mercurio", end: "Termometro", difficulty: "easy" },
-  { start: "Plutonio", end: "Bomba_atomica", difficulty: "easy" },
-  { start: "Sal", end: "Conservacao_de_alimentos", difficulty: "easy" },
-  { start: "Levedura", end: "Pao", difficulty: "easy" },
-  { start: "Bacterias", end: "Antibioticos", difficulty: "easy" },
-  { start: "Virus", end: "Vacina", difficulty: "easy" },
-  { start: "Antibioticos", end: "Alexander_Fleming", difficulty: "easy" },
-  { start: "Insulina", end: "Diabetes", difficulty: "easy" },
-  { start: "Aspirina", end: "Felix_Hoffmann", difficulty: "easy" },
-  { start: "Vitamina_C", end: "Escorbuto", difficulty: "easy" },
-  { start: "Proteina", end: "Musculo", difficulty: "easy" },
-  { start: "Carboidrato", end: "Energia", difficulty: "easy" },
-  { start: "Gordura", end: "Colesterol", difficulty: "easy" },
-  { start: "Fibra", end: "Digestao", difficulty: "easy" },
-  { start: "Acucar", end: "Cana-de-acucar", difficulty: "easy" },
-  { start: "Cafe", end: "Brasil", difficulty: "easy" },
-  { start: "Cha", end: "China", difficulty: "easy" },
-  { start: "Coca_Cola", end: "Atlanta", difficulty: "easy" },
-  { start: "Computador", end: "Alan_Turing", difficulty: "easy" },
-  { start: "Teclado", end: "QWERTY", difficulty: "easy" },
-  { start: "Mouse", end: "Douglas_Engelbart", difficulty: "easy" },
-  { start: "Monitor", end: "Tubo_de_raios_catodicos", difficulty: "easy" },
-  { start: "Impressora", end: "Imprensa", difficulty: "easy" },
-  { start: "Camera", end: "Fotografia", difficulty: "easy" },
-  { start: "Radio", end: "Ondas_eletromagneticas", difficulty: "easy" },
-  { start: "Televisao", end: "John_Logie_Baird", difficulty: "easy" },
-  { start: "Satelite", end: "Sputnik_1", difficulty: "easy" },
-  { start: "Foguete", end: "NASA", difficulty: "easy" },
-  { start: "Astronauta", end: "Neil_Armstrong", difficulty: "easy" },
-  { start: "Lua", end: "Apollo_11", difficulty: "easy" },
-  { start: "Marte", end: "Curiosity", difficulty: "easy" },
-  { start: "Jupiter", end: "Sistema_Solar", difficulty: "easy" },
-  { start: "Plutao", end: "Planeta_anao", difficulty: "easy" },
-  { start: "Constelacao", end: "Astronomia", difficulty: "easy" },
-  { start: "Supernova", end: "Estrela", difficulty: "easy" },
-  { start: "Buraco_negro", end: "Stephen_Hawking", difficulty: "easy" },
-  { start: "Galaxia", end: "Via_Lactea", difficulty: "easy" },
-  { start: "Dinosauros", end: "Extincao_K-Pg", difficulty: "easy" },
-  { start: "Tigre_dentes_de_sabre", end: "Era_do_gelo", difficulty: "easy" },
-  { start: "Mamute", end: "Siberia", difficulty: "easy" },
-  { start: "Darwin", end: "Origem_das_Especies", difficulty: "easy" },
-  { start: "Cromossomo", end: "DNA", difficulty: "easy" },
-  { start: "Cerebro", end: "Neurociencia", difficulty: "easy" },
-  { start: "Coracao", end: "William_Harvey", difficulty: "easy" },
-  { start: "Pulmao", end: "Oxigenio", difficulty: "easy" },
-  { start: "Figado", end: "Digestao", difficulty: "easy" },
-  { start: "Rim", end: "Filtracao", difficulty: "easy" },
-  { start: "Sangue", end: "Hemoglobina", difficulty: "easy" },
-  { start: "Vacina", end: "Edward_Jenner", difficulty: "easy" },
-  { start: "Microscopio", end: "Anton_van_Leeuwenhoek", difficulty: "easy" },
-  { start: "Estetoscopio", end: "René_Laennec", difficulty: "easy" },
-  { start: "Termometro", end: "Galileu_Galilei", difficulty: "easy" },
-  { start: "Bisturi", end: "Cirurgia", difficulty: "easy" },
-
-  // Pares médios (150)
-  { start: "Queijo", end: "Revolução_Neolítica", difficulty: "medium" },
-  { start: "Pão", end: "Antiga_Mesopotâmia", difficulty: "medium" },
-  { start: "Cerveja", end: "Código_de_Hamurabi", difficulty: "medium" },
-  { start: "Calendário", end: "Egito_Antigo", difficulty: "medium" },
-  { start: "Alfabeto", end: "Fenícios", difficulty: "medium" },
-  { start: "Democracia", end: "Péricles", difficulty: "medium" },
-  { start: "Aqueduto", end: "Engenharia_romana", difficulty: "medium" },
-  { start: "Catapulta", end: "Arquimedes", difficulty: "medium" },
-  { start: "Pergaminho", end: "Biblioteca_de_Alexandria", difficulty: "medium" },
-  { start: "Bússola", end: "Navegação_marítima", difficulty: "medium" },
-  { start: "Pólvora", end: "Mongóis", difficulty: "medium" },
-  { start: "Escrita", end: "Suméria", difficulty: "medium" },
-  { start: "Vinho", end: "Dionísio", difficulty: "medium" },
-  { start: "Tempero", end: "Marco_Polo", difficulty: "medium" },
-  { start: "Batata", end: "Império_Inca", difficulty: "medium" },
-  { start: "Chocolate", end: "Astecas", difficulty: "medium" },
-  { start: "Tabaco", end: "Walter_Raleigh", difficulty: "medium" },
-  { start: "Imprensa", end: "Martinho_Lutero", difficulty: "medium" },
-  { start: "Telescópio", end: "Júpiter", difficulty: "medium" },
-  { start: "Microscópio", end: "Microbiologia", difficulty: "medium" },
-  { start: "Máquina_a_vapor", end: "Mineração_de_carvão", difficulty: "medium" },
-  { start: "Telégrafo", end: "Código_Morse", difficulty: "medium" },
-  { start: "Fotografia", end: "Louis_Daguerre", difficulty: "medium" },
-  { start: "Anestesia", end: "Guerra_da_Crimeia", difficulty: "medium" },
-  { start: "Radio", end: "Nikola_Tesla", difficulty: "medium" },
-  { start: "Penicilina", end: "Segunda_Guerra_Mundial", difficulty: "medium" },
-  { start: "Aspirina", end: "Bayer", difficulty: "medium" },
-  { start: "Cinematografia", end: "Irmãos_Lumière", difficulty: "medium" },
-  { start: "Avião", end: "Santos_Dumont", difficulty: "medium" },
-  { start: "Foguete", end: "Guerra_Fria", difficulty: "medium" },
-  { start: "Internet", end: "DARPA", difficulty: "medium" },
-  { start: "Transistor", end: "Bell_Labs", difficulty: "medium" },
-  { start: "Petróleos_Brasileiros", end: "Itamar_Franco", difficulty: "medium" },
-  { start: "Malária", end: "Cinchona", difficulty: "medium" },
-  { start: "Vacina_contra_COVID-19", end: "Pandemia_de_COVID-19", difficulty: "medium" },
-  { start: "Titanic", end: "RMS_Olympic", difficulty: "medium" },
-  { start: "Bomba_atômica", end: "Projeto_Manhattan", difficulty: "medium" },
-  { start: "Antibióticos", end: "Paul_Ehrlich", difficulty: "medium" },
-  { start: "Televisão", end: "Philo_Farnsworth", difficulty: "medium" },
-  { start: "Internet", end: "Tim_Berners-Lee", difficulty: "medium" },
-  { start: "Computador", end: "ENIAC", difficulty: "medium" },
-  { start: "Smartphone", end: "IBM_Simon", difficulty: "medium" },
-  { start: "GPS", end: "Sputnik", difficulty: "medium" },
-  { start: "Barco_a_vapor", end: "Robert_Fulton", difficulty: "medium" },
-  { start: "Submarino", end: "Primeira_Guerra_Mundial", difficulty: "medium" },
-  { start: "Paraquedas", end: "Leonardo_da_Vinci", difficulty: "medium" },
-  { start: "Amazon_EC2", end: "Virtualização", difficulty: "medium" },
-  { start: "Hércules_(Disney)", end: "Monte_Olimpo", difficulty: "medium" },
-  { start: "Clorofila", end: "Fotossíntese", difficulty: "medium" },
-  { start: "Mochila", end: "Exército_Suíço", difficulty: "medium" },
-  { start: "Lixeira", end: "Eugène_Poubelle", difficulty: "medium" },
-  { start: "Martelo", end: "Thor", difficulty: "medium" },
-  { start: "Foice", end: "Deméter", difficulty: "medium" },
-  { start: "Salame", end: "Hungria", difficulty: "medium" },
-  { start: "Alquimia", end: "Tabela_periódica", difficulty: "medium" },
-  { start: "Batom", end: "Elizabeth_Arden", difficulty: "medium" },
-  { start: "Jalapeño", end: "Capsaicina", difficulty: "medium" },
-  { start: "Clarinete", end: "Mozart", difficulty: "medium" },
-  { start: "Arpão", end: "Moby_Dick", difficulty: "medium" },
-  { start: "Fóssil", end: "Mary_Anning", difficulty: "medium" },
-  { start: "Mirtilo", end: "Antioxidante", difficulty: "medium" },
-  { start: "Alho", end: "Drácula", difficulty: "medium" },
-  { start: "Chiclete", end: "Látex", difficulty: "medium" },
-  { start: "Pastilha_elástica", end: "Thomas_Adams", difficulty: "medium" },
-  { start: "Linho", end: "Antigo_Egito", difficulty: "medium" },
-  { start: "Algodão", end: "Eli_Whitney", difficulty: "medium" },
-  { start: "Lã", end: "Ovelha_Dolly", difficulty: "medium" },
-  { start: "Nylon", end: "Wallace_Carothers", difficulty: "medium" },
-  { start: "Poliéster", end: "DuPont", difficulty: "medium" },
-  { start: "Seda", end: "Rota_da_Seda", difficulty: "medium" },
-  { start: "Pintura_rupestre", end: "Lascaux", difficulty: "medium" },
-  { start: "Escultura", end: "Vênus_de_Willendorf", difficulty: "medium" },
-  { start: "Arquitetura", end: "Vitrúvio", difficulty: "medium" },
-  { start: "Cerâmica", end: "Jomon", difficulty: "medium" },
-  { start: "Metal", end: "Idade_dos_Metais", difficulty: "medium" },
-  { start: "Vidro", end: "Fenícios", difficulty: "medium" },
-  { start: "Papel", end: "Cai_Lun", difficulty: "medium" },
-  { start: "Tinta", end: "Índigo", difficulty: "medium" },
-  { start: "Borracha", end: "Charles_Goodyear", difficulty: "medium" },
-  { start: "Plástico", end: "Bakelite", difficulty: "medium" },
-  { start: "Aço", end: "Henry_Bessemer", difficulty: "medium" },
-  { start: "Petróleo", end: "Standard_Oil", difficulty: "medium" },
-  { start: "Dinamite", end: "Alfred_Nobel", difficulty: "medium" },
-  { start: "Têxtil", end: "Revolução_Industrial", difficulty: "medium" },
-  { start: "Máquina_de_costura", end: "Isaac_Singer", difficulty: "medium" },
-  { start: "Refrigeração", end: "Willis_Carrier", difficulty: "medium" },
-  { start: "Laser", end: "Theodore_Maiman", difficulty: "medium" },
-  { start: "LED", end: "Nick_Holonyak", difficulty: "medium" },
-  { start: "Fibra_óptica", end: "Charles_Kao", difficulty: "medium" },
-  { start: "Relógio", end: "John_Harrison", difficulty: "medium" },
-  { start: "Energia_nuclear", end: "Enrico_Fermi", difficulty: "medium" },
-  { start: "Energia_solar", end: "Alexandre_Edmond_Becquerel", difficulty: "medium" },
-  { start: "Energia_eólica", end: "Dom_Quixote", difficulty: "medium" },
-  { start: "Hidroelétrica", end: "Nikola_Tesla", difficulty: "medium" },
-  { start: "Bitcoin", end: "Satoshi_Nakamoto", difficulty: "medium" },
-  { start: "Blockchain", end: "Ethereum", difficulty: "medium" },
-  { start: "Inteligência_artificial", end: "Alan_Turing", difficulty: "medium" },
-  { start: "Realidade_virtual", end: "Morton_Heilig", difficulty: "medium" },
-  { start: "Drone", end: "Nikola_Tesla", difficulty: "medium" },
-  { start: "Robótica", end: "Isaac_Asimov", difficulty: "medium" },
-  { start: "Nanotecnologia", end: "Richard_Feynman", difficulty: "medium" },
-  { start: "Biotecnologia", end: "Herbert_Boyer", difficulty: "medium" },
-  { start: "Genética", end: "Gregor_Mendel", difficulty: "medium" },
-  { start: "DNA", end: "Rosalind_Franklin", difficulty: "medium" },
-  { start: "Clonagem", end: "Dolly_(ovelha)", difficulty: "medium" },
-  { start: "Transgênicos", end: "Norman_Borlaug", difficulty: "medium" },
-  { start: "Células-tronco", end: "James_Thomson", difficulty: "medium" },
-  { start: "Antibiótico", end: "Alexander_Fleming", difficulty: "medium" },
-  { start: "Vacina", end: "Edward_Jenner", difficulty: "medium" },
-  { start: "Raio-X", end: "Wilhelm_Röntgen", difficulty: "medium" },
-  { start: "Tomografia", end: "Godfrey_Hounsfield", difficulty: "medium" },
-  { start: "Ressonância_magnética", end: "Raymond_Damadian", difficulty: "medium" },
-  { start: "Ultrassom", end: "Ian_Donald", difficulty: "medium" },
-  { start: "Endoscopia", end: "Philipp_Bozzini", difficulty: "medium" },
-  { start: "Marca-passo", end: "Wilson_Greatbatch", difficulty: "medium" },
-  { start: "Prótese", end: "Ambroise_Paré", difficulty: "medium" },
-  { start: "Transplante", end: "Christiaan_Barnard", difficulty: "medium" },
-  { start: "Hemodiálise", end: "Willem_Kolff", difficulty: "medium" },
-  { start: "Insulina", end: "Frederick_Banting", difficulty: "medium" },
-  { start: "Aspirina", end: "Felix_Hoffmann", difficulty: "medium" },
-  { start: "Pílula_anticoncepcional", end: "Gregory_Pincus", difficulty: "medium" },
-  { start: "Viagra", end: "Sildenafil", difficulty: "medium" },
-  { start: "Cocaína", end: "Sigmund_Freud", difficulty: "medium" },
-  { start: "LSD", end: "Albert_Hofmann", difficulty: "medium" },
-  { start: "Penicilina", end: "Howard_Florey", difficulty: "medium" },
-  { start: "Morfina", end: "Friedrich_Sertürner", difficulty: "medium" },
-  { start: "Quimioterapia", end: "Mustarda_nitrogenada", difficulty: "medium" },
-  { start: "Anestesia", end: "Crawford_Long", difficulty: "medium" },
-  { start: "Transfusão_de_sangue", end: "Karl_Landsteiner", difficulty: "medium" },
-  { start: "Preservativo", end: "Charles_Goodyear", difficulty: "medium" },
-  { start: "Óculos", end: "Roger_Bacon", difficulty: "medium" },
-  { start: "Lentes_de_contato", end: "Adolf_Fick", difficulty: "medium" },
-  { start: "Câmara_de_vídeo", end: "John_Logie_Baird", difficulty: "medium" },
-  { start: "MP3", end: "Karlheinz_Brandenburg", difficulty: "medium" },
-  { start: "DVD", end: "Toshiba", difficulty: "medium" },
-  { start: "Blu-ray", end: "Sony", difficulty: "medium" },
-  { start: "Flash_memory", end: "Fujio_Masuoka", difficulty: "medium" },
-  { start: "Wi-Fi", end: "NCR_Corporation", difficulty: "medium" },
-  { start: "Bluetooth", end: "Harald_Bluetooth", difficulty: "medium" },
-  { start: "QR_code", end: "Denso_Wave", difficulty: "medium" },
-  { start: "Código_de_barras", end: "Joseph_Woodland", difficulty: "medium" },
-  { start: "Cartão_de_crédito", end: "Frank_McNamara", difficulty: "medium" },
-  { start: "Caixa_eletrônico", end: "John_Shepherd-Barron", difficulty: "medium" },
-  
-  // Pares difíceis (150)
-  { start: "Origami", end: "Teorema_de_Pitágoras", difficulty: "hard" },
-  { start: "Xadrez", end: "Máquina_de_Turing", difficulty: "hard" },
-  { start: "Palito_de_dente", end: "Leonardo_da_Vinci", difficulty: "hard" },
-  { start: "Forno_de_microondas", end: "Radar", difficulty: "hard" },
-  { start: "Post-it", end: "Acupuntura", difficulty: "hard" },
-  { start: "Quebra-cabeça", end: "Aristóteles", difficulty: "hard" },
-  { start: "Bolha_de_sabão", end: "Geometria_não_euclidiana", difficulty: "hard" },
-  { start: "Lego", end: "Arquitetura_Gótica", difficulty: "hard" },
-  { start: "Aspirador_de_pó", end: "Tuberculose", difficulty: "hard" },
-  { start: "Panela_de_pressão", end: "Motor_a_vapor", difficulty: "hard" },
-  { start: "Sushi", end: "Conservação_de_alimentos", difficulty: "hard" },
-  { start: "Manteiga", end: "Mongólia", difficulty: "hard" },
-  { start: "Sorvete", end: "Medicina_Chinesa", difficulty: "hard" },
-  { start: "Lápis", end: "Grafite_(mineral)", difficulty: "hard" },
-  { start: "Bateria_(música)", end: "Guerra_dos_Trinta_Anos", difficulty: "hard" },
-  { start: "Máquina_de_lavar", end: "Revolução_Francesa", difficulty: "hard" },
-  { start: "Bola_de_futebol", end: "Alexandre_o_Grande", difficulty: "hard" },
-  { start: "Relógio_de_pulso", end: "Guerra_dos_Bôeres", difficulty: "hard" },
-  { start: "Escova_de_dentes", end: "Islã", difficulty: "hard" },
-  { start: "Palito_de_fósforo", end: "Charles_Darwin", difficulty: "hard" },
-  { start: "Fralda_descartável", end: "Segunda_Guerra_Mundial", difficulty: "hard" },
-  { start: "Lâmpada_incandescente", end: "Filosofia_grega", difficulty: "hard" },
-  { start: "Spray_aerossol", end: "Camada_de_ozônio", difficulty: "hard" },
-  { start: "Ar-condicionado", end: "Mummificação", difficulty: "hard" },
-  { start: "Saco_plástico", end: "Naufrágio_do_Titanic", difficulty: "hard" },
-  { start: "Bicicleta", end: "Vulcanização", difficulty: "hard" },
-  { start: "Asa_delta", end: "Botânica", difficulty: "hard" },
-  { start: "Escada_rolante", end: "Coney_Island", difficulty: "hard" },
-  { start: "Elevador", end: "Exposição_Mundial_de_1889", difficulty: "hard" },
-  { start: "Fechadura", end: "Algebra", difficulty: "hard" },
-  { start: "Câmera_descartável", end: "Tuberculose", difficulty: "hard" },
-  { start: "Pilha_alcalina", end: "Apollo_11", difficulty: "hard" },
-  { start: "Roda_gigante", end: "Revolução_Industrial", difficulty: "hard" },
-  { start: "Piano", end: "Cristóvão_Colombo", difficulty: "hard" },
-  { start: "Guarda-chuva", end: "Samuel_Fox", difficulty: "hard" },
-  { start: "Moto-serra", end: "Obstetrícia", difficulty: "hard" },
-  { start: "Vaso_sanitário", end: "Thomas_Crapper", difficulty: "hard" },
-  { start: "Cubo_mágico", end: "Arquitetura", difficulty: "hard" },
-  { start: "Boomerang", end: "Aerodinâmica", difficulty: "hard" },
-  { start: "Estalactite", end: "Urbanização", difficulty: "hard" },
-  { start: "Escavadeira", end: "Paleontologia", difficulty: "hard" },
-  { start: "Lente_de_contato", end: "René_Descartes", difficulty: "hard" },
-  { start: "Tobogã", end: "Império_Russo", difficulty: "hard" },
-  { start: "Castelo_de_areia", end: "Engenharia_Civil", difficulty: "hard" },
-  { start: "Pão_de_forma", end: "Primeira_Guerra_Mundial", difficulty: "hard" },
-  { start: "Guarda-sol", end: "Medicina_chinesa", difficulty: "hard" },
-  { start: "Sapatilha_de_balé", end: "Revolução_Francesa", difficulty: "hard" },
-  { start: "Sauna", end: "Xamanismo", difficulty: "hard" },
-  { start: "Caixa_registradora", end: "Proibição", difficulty: "hard" },
-  { start: "Alfinete", end: "Revolução_Industrial", difficulty: "hard" },
-  { start: "Grampeador", end: "Luís_XIV_de_França", difficulty: "hard" },
-  { start: "Tesoura", end: "Leonardo_da_Vinci", difficulty: "hard" },
-  { start: "Geladeira", end: "Michael_Faraday", difficulty: "hard" },
-  { start: "Mata-moscas", end: "Doença_do_Sono", difficulty: "hard" },
-  { start: "Anzol", end: "Idade_da_Pedra", difficulty: "hard" },
-  { start: "Papel_alumínio", end: "Napoleão_III_de_França", difficulty: "hard" },
-  { start: "Rolha", end: "Dom_Pérignon", difficulty: "hard" },
-  { start: "Colher", end: "Etruscos", difficulty: "hard" },
-  { start: "Garfo", end: "Catarina_de_Médici", difficulty: "hard" },
-  { start: "Palito_de_dente", end: "Higiene_oral", difficulty: "hard" },
-  { start: "Interruptor_de_luz", end: "John_Henry_Holmes", difficulty: "hard" },
-  { start: "Salto_alto", end: "Luís_XIV_de_França", difficulty: "hard" },
-  { start: "Mola", end: "Robert_Hooke", difficulty: "hard" },
-  { start: "Clipe_de_papel", end: "Johan_Vaaler", difficulty: "hard" },
-  { start: "Sabonete", end: "Azeite_de_oliva", difficulty: "hard" },
-  { start: "Cotonete", end: "Leo_Gerstenzang", difficulty: "hard" },
-  { start: "Pasta_de_dente", end: "Washington_Sheffield", difficulty: "hard" },
-  { start: "Escova_de_cabelo", end: "Hugh_Rock", difficulty: "hard" },
-  { start: "Pente", end: "Cleópatra", difficulty: "hard" },
-  { start: "Moeda", end: "Rei_Creso", difficulty: "hard" },
-  { start: "Bússola", end: "Dinastia_Han", difficulty: "hard" },
-  { start: "Óculos_de_sol", end: "Esquimós", difficulty: "hard" },
-  { start: "Lâmina_de_barbear", end: "King_Camp_Gillette", difficulty: "hard" },
-  { start: "Canudinho", end: "Marvin_Stone", difficulty: "hard" },
-  { start: "Porta-copos", end: "Cervejaria_Alemã", difficulty: "hard" },
-  { start: "Sacola_de_compras", end: "Margaret_Thatcher", difficulty: "hard" },
-  { start: "Balão", end: "Irmãos_Montgolfier", difficulty: "hard" },
-  { start: "Chupeta", end: "Christian_Meinecke", difficulty: "hard" },
-  { start: "Liquidificador", end: "Stephen_Poplawski", difficulty: "hard" },
-  { start: "Chave_de_fenda", end: "Egito_Antigo", difficulty: "hard" },
-  { start: "Martelo", end: "Idade_do_Bronze", difficulty: "hard" },
-  { start: "Prego", end: "Império_Romano", difficulty: "hard" },
-  { start: "Serra", end: "Egito_Antigo", difficulty: "hard" },
-  { start: "Furadeira", end: "Egito_Antigo", difficulty: "hard" },
-  { start: "Alicate", end: "Bronze", difficulty: "hard" },
-  { start: "Enxada", end: "Neolítico", difficulty: "hard" },
-  { start: "Arado", end: "Mesopotâmia", difficulty: "hard" },
-  { start: "Foice", end: "Neolítico", difficulty: "hard" },
-  { start: "Machado", end: "Idade_da_Pedra", difficulty: "hard" },
-  { start: "Roda_d'água", end: "Vitrúvio", difficulty: "hard" },
-  { start: "Moinho_de_vento", end: "Pérsia", difficulty: "hard" },
-  { start: "Catapulta", end: "Dionísio_I_de_Siracusa", difficulty: "hard" },
-  { start: "Arco_e_flecha", end: "Paleolítico_Superior", difficulty: "hard" },
-  { start: "Lança", end: "Paleolítico", difficulty: "hard" },
-  { start: "Espada", end: "Idade_do_Bronze", difficulty: "hard" },
-  { start: "Escudo", end: "Idade_do_Bronze", difficulty: "hard" },
-  { start: "Armadura", end: "Idade_Média", difficulty: "hard" },
-  { start: "Canhão", end: "Pólvora", difficulty: "hard" },
-  { start: "Mosquete", end: "Guerra_dos_Cem_Anos", difficulty: "hard" },
-  { start: "Revólver", end: "Samuel_Colt", difficulty: "hard" },
-  { start: "Metralhadora", end: "Richard_Gatling", difficulty: "hard" },
-  { start: "Tanque_de_guerra", end: "Leonardo_da_Vinci", difficulty: "hard" },
-  { start: "Submarino", end: "Leonardo_da_Vinci", difficulty: "hard" },
-  { start: "Navio_de_guerra", end: "Fenícios", difficulty: "hard" },
-  { start: "Porta-aviões", end: "Primeira_Guerra_Mundial", difficulty: "hard" },
-  { start: "Bombardeiro", end: "Primeira_Guerra_Mundial", difficulty: "hard" },
-  { start: "Míssil", end: "V-2_(míssil)", difficulty: "hard" },
-  { start: "Bomba_nuclear", end: "Robert_Oppenheimer", difficulty: "hard" },
-  { start: "GPS", end: "Guerra_Fria", difficulty: "hard" },
-  { start: "Radar", end: "Robert_Watson-Watt", difficulty: "hard" },
-  { start: "Sonar", end: "Paul_Langevin", difficulty: "hard" },
-  { start: "Satélite_artificial", end: "Sputnik_1", difficulty: "hard" },
-  { start: "Foguete", end: "Robert_Goddard", difficulty: "hard" },
-  { start: "Estação_Espacial", end: "Salyut_1", difficulty: "hard" },
-  { start: "Telescópio_espacial", end: "Edwin_Hubble", difficulty: "hard" },
-  { start: "Sonda_espacial", end: "Luna_1", difficulty: "hard" },
-  { start: "Rover_lunar", end: "Apollo_15", difficulty: "hard" },
-  { start: "Traje_espacial", end: "Alexei_Leonov", difficulty: "hard" },
-  { start: "Módulo_lunar", end: "Neil_Armstrong", difficulty: "hard" },
-  { start: "Ônibus_espacial", end: "Richard_Nixon", difficulty: "hard" },
-  { start: "Cinto_de_segurança", end: "Volvo", difficulty: "hard" },
-  { start: "Airbag", end: "John_W._Hetrick", difficulty: "hard" },
-  { start: "ABS_(freio)", end: "Aeronáutica", difficulty: "hard" },
-  { start: "GPS_automotivo", end: "Etak", difficulty: "hard" },
-  { start: "Motor_elétrico", end: "Michael_Faraday", difficulty: "hard" },
-  { start: "Bateria_(eletricidade)", end: "Alessandro_Volta", difficulty: "hard" },
-  { start: "Pilha_recarregável", end: "Waldemar_Jungner", difficulty: "hard" },
-  { start: "Controle_remoto", end: "Nikola_Tesla", difficulty: "hard" },
-  { start: "Mouse_(informática)", end: "Douglas_Engelbart", difficulty: "hard" },
-  { start: "Teclado_(informática)", end: "Christopher_Sholes", difficulty: "hard" },
-  { start: "Monitor", end: "Braun_tube", difficulty: "hard" },
-  { start: "Impressora", end: "Charles_Babbage", difficulty: "hard" },
-  { start: "Scanner", end: "Russell_Kirsch", difficulty: "hard" },
-  { start: "Disco_rígido", end: "IBM_305_RAMAC", difficulty: "hard" },
-  { start: "Disquete", end: "IBM", difficulty: "hard" },
-  { start: "CD-ROM", end: "James_Russell", difficulty: "hard" },
-  { start: "DVD", end: "Philips", difficulty: "hard" },
-  { start: "Blu-ray", end: "Sony", difficulty: "hard" },
-  { start: "Pen_drive", end: "IBM", difficulty: "hard" },
-  { start: "SSD", end: "StorageTek", difficulty: "hard" },
-  { start: "Wi-Fi", end: "CSIRO", difficulty: "hard" },
-  { start: "Bluetooth", end: "Ericsson", difficulty: "hard" },
-  { start: "NFC", end: "Sony", difficulty: "hard" },
-  { start: "RFID", end: "Segunda_Guerra_Mundial", difficulty: "hard" },
-  { start: "QR_Code", end: "Toyota", difficulty: "hard" },
-  { start: "Código_de_barras", end: "Bernard_Silver", difficulty: "hard" },
-  { start: "Cartão_de_crédito", end: "Diners_Club", difficulty: "hard" },
-  { start: "Caixa_eletrônico", end: "Barclays", difficulty: "hard" },
-  { start: "Bitcoin", end: "Criptografia", difficulty: "hard" },
-  { start: "Motocicleta", end: "Gottlieb_Daimler", difficulty: "hard" },
-  { start: "Helicóptero", end: "Igor_Sikorsky", difficulty: "hard" }
 ];
+
+// Lista de tópicos gerais para serem usados como sementes para gerar artigos
+const SEED_TOPICS = [
+  // História e Sociedade
+  "Brasil", "História", "Guerra", "Política", "Cultura", "Sociedade", "Arte", "Literatura", 
+  // Ciência e Tecnologia
+  "Ciência", "Tecnologia", "Física", "Química", "Biologia", "Matemática", "Computação", 
+  // Geografia e Natureza
+  "Geografia", "Natureza", "Clima", "Oceano", "Continente", "Planeta", "Montanha",
+  // Pessoas e Biografias
+  "Cientista", "Artista", "Escritor", "Músico", "Político", "Inventor", "Filósofo",
+  // Entretenimento
+  "Cinema", "Música", "Teatro", "Dança", "Esporte", "Jogo", "Festival",
+  // Outros
+  "Alimento", "Religião", "Mitologia", "Economia", "Medicina", "Arquitetura", "Transporte"
+];
+
+// Função para obter links de um artigo da Wikipedia
+const getWikipediaLinks = async (title) => {
+  try {
+    const encodedTitle = encodeURIComponent(title);
+    const response = await fetch(
+      `https://pt.wikipedia.org/w/api.php?action=parse&page=${encodedTitle}&format=json&origin=*&prop=links`
+    );
+    const data = await response.json();
+    
+    if (data.error) {
+      return [];
+    }
+    
+    if (data.parse && data.parse.links) {
+      return data.parse.links
+        .filter(link => link.ns === 0) // Filtrar apenas artigos principais
+        .map(link => link['*'])
+        .filter(link => !link.includes(':') && !link.includes('/')); // Remover links especiais
+    }
+    
+    return [];
+  } catch (error) {
+    console.error(`Erro ao obter links do artigo "${title}":`, error);
+    return [];
+  }
+};
+
+// Função para verificar se é possível chegar de um artigo a outro em N cliques
+const checkPathPossibility = async (startArticle, endArticle, maxClicks = 5, minClicks = 2) => {
+  const visited = new Set();
+  const queue = [[startArticle, 0]];
+  visited.add(startArticle);
+  
+  while (queue.length > 0) {
+    const [currentArticle, clicks] = queue.shift();
+    
+    if (clicks > maxClicks) {
+      continue;
+    }
+    
+    if (currentArticle === endArticle && clicks >= minClicks) {
+      return clicks;
+    }
+    
+    if (clicks < maxClicks) {
+      const links = await getWikipediaLinks(currentArticle);
+      
+      for (const link of links) {
+        if (!visited.has(link)) {
+          visited.add(link);
+          queue.push([link, clicks + 1]);
+        }
+      }
+    }
+  }
+  
+  return -1;
+};
+
+// Função para gerar um par válido de artigos
+const generateValidPair = async () => {
+  const maxAttempts = 10;
+  let attempts = 0;
+  
+  while (attempts < maxAttempts) {
+    try {
+      // Escolher um tópico aleatório como semente
+      const seedTopic = SEED_TOPICS[Math.floor(Math.random() * SEED_TOPICS.length)];
+      
+      // Obter links do artigo semente
+      const seedLinks = await getWikipediaLinks(seedTopic);
+      if (seedLinks.length === 0) continue;
+      
+      // Escolher artigo inicial aleatório dos links da semente
+      const startArticle = seedLinks[Math.floor(Math.random() * seedLinks.length)];
+      
+      // Obter links do artigo inicial
+      const startLinks = await getWikipediaLinks(startArticle);
+      if (startLinks.length === 0) continue;
+      
+      // Escolher artigo final aleatório dos links do artigo inicial
+      // ou dos links da semente para aumentar a variedade
+      const potentialEndLinks = [...new Set([...startLinks, ...seedLinks])];
+      const endArticle = potentialEndLinks[Math.floor(Math.random() * potentialEndLinks.length)];
+      
+      // Verificar se o caminho é possível e está dentro dos limites
+      const pathLength = await checkPathPossibility(startArticle, endArticle);
+      
+      if (pathLength >= 2 && pathLength <= 5) {
+        return {
+          start: startArticle,
+          end: endArticle,
+          difficulty: pathLength <= 3 ? "easy" : pathLength === 4 ? "medium" : "hard"
+        };
+      }
+    } catch (error) {
+      console.error("Erro ao gerar par:", error);
+    }
+    
+    attempts++;
+  }
+  
+  // Se falhar em gerar um par válido, usar um par de backup
+  return {
+    start: "Brasil",
+    end: "Ciência",
+    difficulty: "medium"
+  };
+};
 
 // Componentes básicos para substituir os do Spark
 const Button = ({ children, variant = "default", icon, onClick, className = "", ...props }) => {
@@ -861,18 +589,41 @@ function App() {
   };
 
   // Initialize game with random pair
-  const startGame = () => {
-    const randomPair = GAME_PAIRS[Math.floor(Math.random() * GAME_PAIRS.length)];
-    setGameState({
-      startArticle: randomPair.start,
-      endArticle: randomPair.end,
-      clicksLeft: 5,
-      path: [randomPair.start],
-      isComplete: false,
-      showCelebration: false
-    });
-    loadArticle(randomPair.start);
-    setShowMenu(false);
+  const startGame = async () => {
+    setLoading(true);
+    try {
+      const pair = await generateValidPair();
+      setGameState({
+        startArticle: pair.start,
+        endArticle: pair.end,
+        clicksLeft: 5,
+        path: [pair.start],
+        isComplete: false,
+        showCelebration: false
+      });
+      loadArticle(pair.start);
+      setShowMenu(false);
+    } catch (error) {
+      console.error("Erro ao iniciar jogo:", error);
+      // Usar um par de backup em caso de erro
+      const backupPair = {
+        start: "Brasil",
+        end: "Ciência",
+        difficulty: "medium"
+      };
+      setGameState({
+        startArticle: backupPair.start,
+        endArticle: backupPair.end,
+        clicksLeft: 5,
+        path: [backupPair.start],
+        isComplete: false,
+        showCelebration: false
+      });
+      loadArticle(backupPair.start);
+      setShowMenu(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Function to load Wikipedia article content
@@ -1276,14 +1027,8 @@ function App() {
               <div className="flex flex-col items-center gap-8 text-center">
                 <h1 className={`fancy-title ${animationVisible ? 'animate-title' : ''}`}>5CLIQUES</h1>
                 <p className={`text-lg text-gray-700 ${animationVisible ? 'animate-fade-in' : 'opacity-0'}`} style={{animationDelay: '0.3s'}}>
-                  Conecte dois artigos da Wikipedia em 5 cliques ou menos!
+                  Conecte dois artigos aleatórios da Wikipedia em 5 cliques ou menos!
                 </p>
-                
-                {/* Contador de combinações disponíveis */}
-                <div className={`combinations-counter ${animationVisible ? 'animate-scale-in animate-float' : 'opacity-0'}`} style={{animationDelay: '0.5s'}}>
-                  <div className="counter-value">{GAME_PAIRS.length}</div>
-                  <div className="counter-label">combinações disponíveis</div>
-                </div>
                 
                 <div className="flex flex-col gap-4 w-full max-w-sm">
                   <Button
@@ -1303,17 +1048,8 @@ function App() {
                   >
                     Como Jogar
                   </Button>
-                  <Button
-                    icon={<Lightning />}
-                    onClick={validateAllPairs}
-                    className={`btn-block ${animationVisible ? 'animate-slide-up' : 'opacity-0'}`}
-                    style={{animationDelay: '1.1s'}}
-                  >
-                    Validar Artigos
-                  </Button>
                 </div>
                 
-                {/* Informação do criador */}
                 <div className={`creator-info ${animationVisible ? 'animate-fade-in' : 'opacity-0'}`} style={{animationDelay: '1.3s'}}>
                   <p>Desenvolvido por David Silva</p>
                   <a href="mailto:davosalm@gmail.com" className="creator-email">
@@ -1333,7 +1069,7 @@ function App() {
                 <div className="space-y-4">
                   <p className="flex items-center gap-2 mb-3 animate-slide-in" style={{animationDelay: '0.1s'}}>
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-600 font-bold">1</span>
-                    Você receberá dois artigos da Wikipedia: um inicial e um final
+                    Você receberá dois artigos aleatórios da Wikipedia: um inicial e um final
                   </p>
                   <p className="flex items-center gap-2 mb-3 animate-slide-in" style={{animationDelay: '0.2s'}}>
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-600 font-bold">2</span>
@@ -1346,9 +1082,6 @@ function App() {
                   <p className="flex items-center gap-2 mb-3 animate-slide-in" style={{animationDelay: '0.4s'}}>
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-600 font-bold">4</span>
                     Escolha seus cliques com sabedoria para criar um caminho entre os artigos!
-                  </p>
-                  <p className="mt-4 text-center animate-fade-in" style={{animationDelay: '0.6s'}}>
-                    <strong>Total de {GAME_PAIRS.length} combinações diferentes para testar suas habilidades!</strong>
                   </p>
                 </div>
               </DialogDescription>

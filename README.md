@@ -1,4 +1,4 @@
-# De cá pra lá
+# 5CLIQUES
 
 Um jogo de navegação na Wikipedia onde você precisa conectar dois artigos em 5 cliques ou menos.
 

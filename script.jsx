@@ -620,9 +620,7 @@ function App() {
     showCelebration: false
   });
   const [loading, setLoading] = React.useState(false);
-  
-  // Total de combinações disponíveis
-  const totalCombinations = GAME_PAIRS.length;
+  const [animationVisible, setAnimationVisible] = React.useState(false); // Estado para controlar a visibilidade das animações
 
   // Aplica o tema escuro ao documento
   React.useEffect(() => {
@@ -639,6 +637,11 @@ function App() {
       setDarkMode(prefersDark);
       if (prefersDark) document.body.classList.add('dark-theme');
     }
+
+    // Ativar as animações após um breve delay para permitir que a página carregue
+    setTimeout(() => {
+      setAnimationVisible(true);
+    }, 300);
   }, []);
 
   // Toggle tema escuro/claro
@@ -753,7 +756,7 @@ function App() {
   const ThemeToggle = () => (
     <div className="theme-switch">
       <button 
-        className="theme-switch-button" 
+        className="theme-switch-button animate-wiggle" 
         onClick={toggleDarkMode} 
         aria-label={darkMode ? "Ativar modo claro" : "Ativar modo escuro"}
       >
@@ -768,39 +771,41 @@ function App() {
         <ThemeToggle />
         <PageContainer maxWidth="small">
           <div className="py-12">
-            <Card className="menu-card p-8">
+            <Card className={`menu-card p-8 ${animationVisible ? 'animate-entrance' : ''}`}>
               <div className="flex flex-col items-center gap-8 text-center">
-                <h1 className="fancy-title animate-float">5CLIQUES</h1>
-                <p className="text-lg text-gray-700 fade-in" style={{ animationDelay: '0.2s' }}>
+                <h1 className={`fancy-title ${animationVisible ? 'animate-title' : ''}`}>5CLIQUES</h1>
+                <p className={`text-lg text-gray-700 ${animationVisible ? 'animate-fade-in' : 'opacity-0'}`} style={{animationDelay: '0.3s'}}>
                   Conecte dois artigos da Wikipedia em 5 cliques ou menos!
                 </p>
                 
-                <div className="combinations-badge fade-in" style={{ animationDelay: '0.4s' }}>
-                  <span className="combinations-count">{totalCombinations}</span>
-                  <span className="combinations-text">combinações disponíveis</span>
+                {/* Contador de combinações disponíveis */}
+                <div className={`combinations-counter ${animationVisible ? 'animate-scale-in animate-float' : 'opacity-0'}`} style={{animationDelay: '0.5s'}}>
+                  <div className="counter-value">{GAME_PAIRS.length}</div>
+                  <div className="counter-label">combinações disponíveis</div>
                 </div>
                 
-                <div className="flex flex-col gap-4 w-full max-w-sm fade-in" style={{ animationDelay: '0.6s' }}>
+                <div className="flex flex-col gap-4 w-full max-w-sm">
                   <Button
                     variant="primary"
                     icon={<Play />}
                     onClick={startGame}
-                    className="btn-large btn-block animate-pulse-subtle"
+                    className={`btn-large btn-block ${animationVisible ? 'animate-slide-up animate-wiggle' : 'opacity-0'}`}
+                    style={{animationDelay: '0.7s'}}
                   >
                     Jogar
                   </Button>
                   <Button
                     icon={<Question />}
                     onClick={() => setShowTutorial(true)}
-                    className="btn-block animate-appear"
-                    style={{ animationDelay: '0.8s' }}
+                    className={`btn-block ${animationVisible ? 'animate-slide-up' : 'opacity-0'}`}
+                    style={{animationDelay: '0.9s'}}
                   >
                     Como Jogar
                   </Button>
                 </div>
                 
                 {/* Informação do criador */}
-                <div className="creator-info fade-in" style={{ animationDelay: '1s' }}>
+                <div className={`creator-info ${animationVisible ? 'animate-fade-in' : 'opacity-0'}`} style={{animationDelay: '1.1s'}}>
                   <p>Desenvolvido por David Silva</p>
                   <a href="mailto:davosalm@gmail.com" className="creator-email">
                     davosalm@gmail.com
@@ -817,21 +822,24 @@ function App() {
               <DialogTitle>Como Jogar</DialogTitle>
               <DialogDescription>
                 <div className="space-y-4">
-                  <p className="flex items-center gap-2 mb-3">
+                  <p className="flex items-center gap-2 mb-3 animate-slide-in" style={{animationDelay: '0.1s'}}>
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-600 font-bold">1</span>
                     Você receberá dois artigos da Wikipedia: um inicial e um final
                   </p>
-                  <p className="flex items-center gap-2 mb-3">
+                  <p className="flex items-center gap-2 mb-3 animate-slide-in" style={{animationDelay: '0.2s'}}>
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-600 font-bold">2</span>
                     Navegue pelos links dentro dos artigos para chegar ao artigo final
                   </p>
-                  <p className="flex items-center gap-2 mb-3">
+                  <p className="flex items-center gap-2 mb-3 animate-slide-in" style={{animationDelay: '0.3s'}}>
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-600 font-bold">3</span>
                     Você tem apenas 5 cliques para completar o desafio
                   </p>
-                  <p className="flex items-center gap-2 mb-3">
+                  <p className="flex items-center gap-2 mb-3 animate-slide-in" style={{animationDelay: '0.4s'}}>
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-600 font-bold">4</span>
                     Escolha seus cliques com sabedoria para criar um caminho entre os artigos!
+                  </p>
+                  <p className="mt-4 text-center animate-fade-in" style={{animationDelay: '0.6s'}}>
+                    <strong>Total de {GAME_PAIRS.length} combinações diferentes para testar suas habilidades!</strong>
                   </p>
                 </div>
               </DialogDescription>
@@ -857,7 +865,7 @@ function App() {
                   onClick={resetGame}
                   aria-label="Voltar ao menu"
                 />
-                <h1 className="text-2xl font-bold">De cá pra lá</h1>
+                <h1 className="text-2xl font-bold">5CLIQUES</h1>
               </div>
               <div className="game-stats">
                 <Timer size={20} weight="bold" className="text-primary" />

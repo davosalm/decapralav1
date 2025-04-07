@@ -67,12 +67,12 @@ const INITIAL_TOPICS = [
   "Vasco_da_Gama", "Flamengo", "Corinthians", "São_Paulo_FC", "Santos_FC"
 ];
 
-// Função para obter o display title e informações do artigo
+// Função para obter o display title e informações do artigo com tratamento especial para acentuação
 const getArticleInfo = async (title) => {
   try {
     const encodedTitle = encodeURIComponent(title);
     const response = await fetch(
-      `https://pt.wikipedia.org/w/api.php?action=parse&format=json&origin=*&page=${encodedTitle}&prop=text|displaytitle&redirects`
+      `https://pt.wikipedia.org/w/api.php?action=parse&format=json&origin=*&page=${encodedTitle}&prop=text|displaytitle&redirects&uselang=pt-br`
     );
     const data = await response.json();
     
@@ -80,7 +80,7 @@ const getArticleInfo = async (title) => {
     
     if (!data.parse) return null;
     
-    // Extrair o título real do artigo do HTML
+    // Extrair o título real do artigo do HTML e preservar acentuação
     const div = document.createElement('div');
     div.innerHTML = data.parse.displaytitle;
     const displayTitle = div.textContent || div.innerText || title;
@@ -88,6 +88,7 @@ const getArticleInfo = async (title) => {
     return {
       title: title,
       displayTitle: displayTitle,
+      titleForComparison: normalizeStringForComparison(displayTitle),
       isValid: true
     };
   } catch (error) {
@@ -96,54 +97,170 @@ const getArticleInfo = async (title) => {
   }
 };
 
-// Função para obter links de um artigo da Wikipedia
+// Função melhorada para normalizar strings para comparação
+const normalizeStringForComparison = (str) => {
+  if (!str) return '';
+  
+  try {
+    // Converter para minúsculas
+    let normalized = str.toLowerCase();
+    
+    // Substituir underscores por espaços
+    normalized = normalized.replace(/_/g, ' ');
+    
+    // Remover acentos para comparação
+    normalized = normalized.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    
+    // Remover caracteres especiais e pontuação
+    normalized = normalized.replace(/[^\w\s]/g, '');
+    
+    // Remover espaços extras
+    normalized = normalized.trim().replace(/\s+/g, ' ');
+    
+    return normalized;
+  } catch (e) {
+    console.error("Erro ao normalizar string:", e);
+    return str.toLowerCase().trim();
+  }
+};
+
+// Função para verificar se dois títulos de artigos correspondem
+const checkArticleMatch = (currentArticle, targetArticle) => {
+  try {
+    // Obter as versões normalizadas dos títulos para comparação
+    const current = normalizeStringForComparison(currentArticle);
+    const target = normalizeStringForComparison(targetArticle);
+    
+    // Verificar correspondência exata após normalização
+    if (current === target) return true;
+    
+    // Verificar se um é substring significativa do outro
+    if ((current.includes(target) || target.includes(current)) &&
+        Math.min(current.length, target.length) > 5) {
+      return true;
+    }
+    
+    // Verificar similaridade com base em tokens comuns
+    const currentTokens = current.split(' ');
+    const targetTokens = target.split(' ');
+    
+    // Se ambos têm múltiplas palavras, verificar se compartilham palavras significativas
+    if (currentTokens.length > 1 && targetTokens.length > 1) {
+      const commonTokens = currentTokens.filter(token => 
+        token.length > 3 && targetTokens.includes(token)
+      );
+      
+      if (commonTokens.length > 0) {
+        return true;
+      }
+    }
+    
+    // Verificar algumas variações comuns específicas
+    const variations = {
+      'crimeia': ['crimea', 'crimeia'],
+      'uniao sovietica': ['urss', 'uniao sovietica'],
+      'estados unidos': ['eua', 'usa', 'america'],
+      'america': ['estados unidos', 'eua'],
+      'brasil': ['republica federativa do brasil'],
+      'franca': ['republica francesa'],
+      'reino unido': ['gra bretanha', 'inglaterra'],
+      'alemanha': ['republica federal da alemanha'],
+      'japao': ['imperio do japao'],
+      'china': ['republica popular da china'],
+      'russia': ['federacao russa'],
+      'exercito': ['forcas armadas'],
+      'futebol': ['soccer', 'calcio'],
+      'historia': ['cronologia'],
+      'geografia': ['geopolitica'],
+      'primeira guerra mundial': ['grande guerra'],
+      'segunda guerra mundial': ['guerra mundial']
+    };
+    
+    // Verificar variações em ambas as direções
+    for (const [base, aliases] of Object.entries(variations)) {
+      if ((current.includes(base) && aliases.some(a => target.includes(a))) ||
+          (target.includes(base) && aliases.some(a => current.includes(a)))) {
+        return true;
+      }
+    }
+    
+    // Calcular similaridade baseada em caracteres comuns
+    const calculateSimilarity = (s1, s2) => {
+      let commonChars = 0;
+      const minLength = Math.min(s1.length, s2.length);
+      
+      // Se os comprimentos são muito diferentes, provavelmente não são o mesmo
+      if (Math.max(s1.length, s2.length) > minLength * 2) {
+        return 0;
+      }
+      
+      for (let i = 0; i < s1.length; i++) {
+        if (s2.includes(s1[i])) commonChars++;
+      }
+      
+      return commonChars / Math.max(s1.length, s2.length);
+    };
+    
+    // Se a similaridade é alta o suficiente
+    const similarity = calculateSimilarity(current, target);
+    if (similarity > 0.8) {
+      return true;
+    }
+    
+    return false;
+  } catch (e) {
+    console.error("Erro na comparação de artigos:", e);
+    // Em caso de erro, tentar uma comparação simples
+    return currentArticle.toLowerCase() === targetArticle.toLowerCase();
+  }
+};
+
+// Função para obter links de um artigo da Wikipedia com tratamento melhorado
 const getWikipediaLinks = async (title) => {
   try {
     const encodedTitle = encodeURIComponent(title);
     const response = await fetch(
-      `https://pt.wikipedia.org/w/api.php?action=query&format=json&origin=*&titles=${encodedTitle}&prop=links|info|langlinks&pllimit=500&plnamespace=0&redirects&converttitles&uselang=pt-br`
+      `https://pt.wikipedia.org/w/api.php?action=query&format=json&origin=*&titles=${encodedTitle}&prop=links|info&pllimit=500&plnamespace=0&redirects&uselang=pt-br`
     );
     const data = await response.json();
     
     if (data.error) return [];
     
     const pages = data.query.pages;
+    if (!pages) return [];
+    
     const pageId = Object.keys(pages)[0];
     const page = pages[pageId];
     
     if (!page || !page.links || pageId === '-1') return [];
     
-    // Verificar se é um redirecionamento
-    if (page.redirect) return [];
+    // Filtrar links úteis
+    const filteredLinks = page.links
+      .filter(link => {
+        // Remover links especiais e namespaces
+        if (!link.title || link.title.includes(':') || link.title.includes('/')) return false;
+        
+        // Remover links para anos e datas (são muito genéricos)
+        const yearPattern = /^[0-9]{1,4}$/;
+        if (yearPattern.test(link.title)) return false;
+        
+        return true;
+      })
+      .map(link => ({ title: link.title }));
     
-    // Verificar se tem versão em pt-pt
-    if (page.langlinks?.some(link => link.lang === 'pt')) return [];
-    
-    // Filtrar e processar os links
-    const linksInfo = await Promise.all(
-      page.links
-        .filter(link => {
-          // Remover links especiais e namespaces
-          if (link.title.includes(':') || link.title.includes('/')) return false;
-          
-          // Remover links para anos e datas (são muito genéricos)
-          const yearPattern = /^[0-9]{1,4}$/;
-          if (yearPattern.test(link.title)) return false;
-          
-          return true;
-        })
-        .map(async link => {
-          try {
-            const info = await getArticleInfo(link.title);
-            return info;
-          } catch (e) {
-            return null;
-          }
-        })
+    // Obter displayTitle para os primeiros 50 links (para não sobrecarregar)
+    const linksWithDisplayTitle = await Promise.all(
+      filteredLinks.slice(0, 50).map(async link => {
+        try {
+          const info = await getArticleInfo(link.title);
+          return info;
+        } catch (e) {
+          return null;
+        }
+      })
     );
     
-    // Remover links nulos e inválidos
-    return linksInfo.filter(link => link !== null);
+    return linksWithDisplayTitle.filter(link => link !== null);
   } catch (error) {
     console.error(`Erro ao obter links do artigo "${title}":`, error);
     return [];
@@ -194,14 +311,14 @@ const checkPathPossibility = async (startArticle, endArticle, maxClicks = 5, min
   };
 };
 
-// Função para gerar um par válido de artigos mais criativo
+// Função melhorada para gerar pares válidos, com foco em tópicos do Brasil
 const generateValidPair = async () => {
-  const maxAttempts = 15;
+  const maxAttempts = 10;
   let attempts = 0;
   
   while (attempts < maxAttempts) {
     try {
-      // Escolher um artigo inicial dos tópicos específicos
+      // Escolher um tema brasileiro ou popular para o artigo inicial
       const startTopic = INITIAL_TOPICS[Math.floor(Math.random() * INITIAL_TOPICS.length)];
       
       // Obter informações do artigo inicial
@@ -211,40 +328,49 @@ const generateValidPair = async () => {
         continue;
       }
       
+      console.log(`Tentativa ${attempts+1}: Artigo inicial: ${startInfo.displayTitle}`);
+      
       // Obter links do artigo inicial
       const initialLinks = await getWikipediaLinks(startTopic);
-      if (initialLinks.length === 0) {
+      if (initialLinks.length < 5) {
         attempts++;
         continue;
       }
       
-      // Escolher um link de segundo nível (links dos links do artigo inicial)
-      const secondLevelArticles = await Promise.all(
-        initialLinks
-          .slice(0, 5) // Limitar para não sobrecarregar
-          .map(async link => {
-            const secondLinks = await getWikipediaLinks(link.title);
-            return secondLinks;
-          })
-      );
+      // Escolher um artigo aleatório dos links do artigo inicial
+      const randomLinkIndex = Math.floor(Math.random() * initialLinks.length);
+      const randomLink = initialLinks[randomLinkIndex];
       
-      // Achatar o array de arrays e remover nulos
-      const flatSecondLevel = secondLevelArticles
-        .flat()
-        .filter(link => link !== null);
-      
-      if (flatSecondLevel.length === 0) {
+      if (!randomLink) {
         attempts++;
         continue;
       }
       
-      // Escolher um artigo final aleatório do segundo nível
-      const endArticle = flatSecondLevel[Math.floor(Math.random() * flatSecondLevel.length)];
+      console.log(`Artigo intermediário: ${randomLink.displayTitle}`);
       
-      // Verificar se o caminho é possível e está dentro dos limites
+      // Obter links do artigo intermediário
+      const secondLevelLinks = await getWikipediaLinks(randomLink.title);
+      if (secondLevelLinks.length < 5) {
+        attempts++;
+        continue;
+      }
+      
+      // Escolher um artigo final aleatório
+      const endArticleIndex = Math.floor(Math.random() * secondLevelLinks.length);
+      const endArticle = secondLevelLinks[endArticleIndex];
+      
+      if (!endArticle) {
+        attempts++;
+        continue;
+      }
+      
+      console.log(`Verificando caminho de "${startInfo.displayTitle}" para "${endArticle.displayTitle}"`);
+      
+      // Verificar se o caminho é possível
       const pathResult = await checkPathPossibility(startInfo.title, endArticle.title);
       
       if (pathResult.possible && pathResult.clicks >= 2 && pathResult.clicks <= 5) {
+        console.log(`Caminho encontrado! Cliques: ${pathResult.clicks}`);
         return {
           start: startInfo.title,
           startDisplay: startInfo.displayTitle,
@@ -261,46 +387,37 @@ const generateValidPair = async () => {
     attempts++;
   }
   
-  // Se falhar em gerar um par válido, usar um par de backup que sabemos que funciona
-  return {
-    start: "Santos_Dumont",
-    startDisplay: "Santos Dumont",
-    end: "Aviação",
-    endDisplay: "Aviação",
-    difficulty: "easy",
-    expectedClicks: 2
-  };
-};
-
-// Função para verificar se um artigo é pt-br e não é redirecionamento
-const validateArticle = async (title) => {
-  try {
-    const encodedTitle = encodeURIComponent(title);
-    const response = await fetch(
-      `https://pt.wikipedia.org/w/api.php?action=query&format=json&origin=*&titles=${encodedTitle}&prop=info|langlinks&redirects=1`
-    );
-    const data = await response.json();
-    
-    if (!data.query?.pages) return false;
-    
-    const pages = data.query.pages;
-    const pageId = Object.keys(pages)[0];
-    const page = pages[pageId];
-    
-    // Verificar se a página existe
-    if (pageId === '-1' || !page) return false;
-    
-    // Verificar se é redirecionamento
-    if (page.redirect) return false;
-    
-    // Verificar se tem versão pt-pt
-    if (page.langlinks?.some(link => link.lang === 'pt')) return false;
-    
-    return true;
-  } catch (error) {
-    console.error(`Erro ao validar artigo "${title}":`, error);
-    return false;
-  }
+  // Se falhar em gerar um par válido, usar pares de backup
+  const backupPairs = [
+    {
+      start: "Santos_Dumont",
+      startDisplay: "Santos Dumont",
+      end: "Aviação",
+      endDisplay: "Aviação",
+      difficulty: "easy",
+      expectedClicks: 2
+    },
+    {
+      start: "Pelé",
+      startDisplay: "Pelé",
+      end: "Futebol",
+      endDisplay: "Futebol",
+      difficulty: "easy",
+      expectedClicks: 1
+    },
+    {
+      start: "Rio_de_Janeiro",
+      startDisplay: "Rio de Janeiro",
+      end: "Carnaval",
+      endDisplay: "Carnaval",
+      difficulty: "easy",
+      expectedClicks: 1
+    }
+  ];
+  
+  const randomBackupPair = backupPairs[Math.floor(Math.random() * backupPairs.length)];
+  console.log("Usando par de backup:", randomBackupPair);
+  return randomBackupPair;
 };
 
 // Função para normalizar strings de títulos de artigos
@@ -323,129 +440,38 @@ const normalizeString = (str) => {
   }
 };
 
-// Função para comparar títulos de artigos de forma flexível
-const checkArticleMatch = (currentArticle, targetArticle) => {
-  // Função para normalizar strings mantendo acentos, apenas removendo espaços extras e underscores
-  const normalizeKeepAccents = (str) => {
-    try {
-      return decodeURIComponent(str)
-        .replace(/_/g, ' ')
-        .trim()
-        .toLowerCase();
-    } catch (e) {
-      return str.replace(/_/g, ' ')
-        .trim()
-        .toLowerCase();
-    }
-  };
+// Modificações no componente para atualizar o caminho do usuário
+const handleLinkClick = async (event) => {
+  const link = event.target.closest('a[data-wiki-link]');
+  if (!link) return;
   
-  // Função para normalizar removendo acentos para comparação mais flexível
-  const normalizeNoAccents = (str) => {
-    try {
-      return decodeURIComponent(str)
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/_/g, ' ')
-        .toLowerCase()
-        .trim();
-    } catch (e) {
-      return str.normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/_/g, ' ')
-        .toLowerCase()
-        .trim();
-    }
-  };
-
-  // Primeira tentativa: comparação exata mantendo acentos
-  const current = normalizeKeepAccents(currentArticle);
-  const target = normalizeKeepAccents(targetArticle);
-  if (current === target) return true;
-
-  // Segunda tentativa: comparação sem acentos
-  const currentNoAccents = normalizeNoAccents(currentArticle);
-  const targetNoAccents = normalizeNoAccents(targetArticle);
-  if (currentNoAccents === targetNoAccents) return true;
-
-  // Terceira tentativa: verificar se são variações comuns
-  const variations = {
-    'crimeia': ['criméia', 'crimea', 'criméa'],
-    'haroldo': ['harald', 'harold'],
-    'império': ['imperio', 'imperador'],
-    'exercito': ['exército'],
-    'republica': ['república'],
-    'africa': ['áfrica'],
-    'america': ['américa'],
-    'austria': ['áustria'],
-    'belgica': ['bélgica'],
-    'espanha': ['españa'],
-    'estados_unidos': ['eua', 'usa', 'américa', 'america'],
-    'franca': ['frança'],
-    'grecia': ['grécia'],
-    'india': ['índia'],
-    'italia': ['itália'],
-    'japao': ['japão'],
-    'mexico': ['méxico'],
-    'alemanha': ['deutschland'],
-    'russia': ['rússia'],
-    'suecia': ['suécia'],
-    'suica': ['suíça'],
-    'ucrania': ['ucrânia'],
-    'uniao_sovietica': ['urss', 'união soviética', 'uniao sovietica'],
-    'vietnam': ['vietnã', 'vietname'],
-    'warsaw': ['varsóvia', 'varsovia'],
-    'zeus': ['júpiter', 'jupiter'],
-    'aristoteles': ['aristóteles'],
-    'platao': ['platão'],
-    'socrates': ['sócrates']
-  };
-
-  // Verificar variações em ambas as direções
-  for (const [base, aliases] of Object.entries(variations)) {
-    const baseNorm = normalizeNoAccents(base);
-    if ((baseNorm === currentNoAccents && aliases.some(a => normalizeNoAccents(a) === targetNoAccents)) ||
-        (baseNorm === targetNoAccents && aliases.some(a => normalizeNoAccents(a) === currentNoAccents))) {
-      return true;
-    }
+  event.preventDefault();
+  const title = link.getAttribute('data-wiki-link');
+  
+  if (gameState.clicksLeft > 0 && !gameState.isComplete) {
+    // Obter informações do artigo incluindo o displayTitle
+    const articleInfo = await getArticleInfo(title);
+    if (!articleInfo) return;
+    
+    const newPath = [...gameState.path, {
+      title: articleInfo.title,
+      displayTitle: articleInfo.displayTitle,
+      titleForComparison: articleInfo.titleForComparison
+    }];
+    
+    // Verifica se encontrou o artigo de destino usando a função melhorada
+    const isComplete = checkArticleMatch(articleInfo.titleForComparison, gameState.endArticleForComparison);
+    
+    setGameState(prev => ({
+      ...prev,
+      clicksLeft: prev.clicksLeft - 1,
+      path: newPath,
+      isComplete,
+      showCelebration: isComplete
+    }));
+    
+    loadArticle(title);
   }
-
-  // Quarta tentativa: verificar se são substrings significativas uma da outra
-  // Por exemplo: "Revolução Francesa" e "Revolução_Francesa"
-  if (currentNoAccents.includes(targetNoAccents) || targetNoAccents.includes(currentNoAccents)) {
-    // Verificar se a substring tem tamanho significativo (mais de 5 caracteres)
-    const minLength = Math.min(currentNoAccents.length, targetNoAccents.length);
-    if (minLength > 5) {
-      return true;
-    }
-  }
-
-  // Quinta tentativa: calcular similaridade entre as strings
-  const similarity = (s1, s2) => {
-    if (s1.length < 2 || s2.length < 2) return 0;
-
-    const firstLetterMatch = s1[0] === s2[0];
-    const lastLetterMatch = s1[s1.length - 1] === s2[s2.length - 1];
-    
-    let commonChars = 0;
-    for (let i = 0; i < s1.length; i++) {
-      if (s2.includes(s1[i])) commonChars++;
-    }
-    
-    const similarityScore = (commonChars / Math.max(s1.length, s2.length));
-    
-    // Se as primeiras e últimas letras correspondem e há alta similaridade
-    if (firstLetterMatch && lastLetterMatch && similarityScore > 0.8) {
-      return true;
-    }
-    
-    return false;
-  };
-
-  if (similarity(currentNoAccents, targetNoAccents)) {
-    return true;
-  }
-
-  return false;
 };
 
 // Componentes básicos para substituir os do Spark
@@ -568,6 +594,68 @@ const Celebration = () => {
       ))}
     </div>
   );
+};
+
+// Atualizar o startGame para incluir a versão normalizada do título para comparação
+const startGame = async () => {
+  setLoading(true);
+  try {
+    const pair = await generateValidPair();
+    
+    // Gerar versões normalizadas para comparação
+    const endArticleForComparison = normalizeStringForComparison(pair.endDisplay || pair.end);
+    
+    setGameState({
+      startArticle: pair.start,
+      startDisplay: pair.startDisplay,
+      endArticle: pair.end,
+      endDisplay: pair.endDisplay,
+      endArticleForComparison: endArticleForComparison, // Adicionado para comparação
+      clicksLeft: 5,
+      path: [{
+        title: pair.start,
+        displayTitle: pair.startDisplay,
+        titleForComparison: normalizeStringForComparison(pair.startDisplay || pair.start)
+      }],
+      isComplete: false,
+      showCelebration: false
+    });
+    loadArticle(pair.start);
+    setShowMenu(false);
+  } catch (error) {
+    console.error("Erro ao iniciar jogo:", error);
+    // Usar um par de backup em caso de erro
+    const backupPair = {
+      start: "Brasil",
+      startDisplay: "Brasil",
+      end: "Ciência",
+      endDisplay: "Ciência",
+      difficulty: "medium"
+    };
+    
+    // Gerar versão normalizada para comparação
+    const endArticleForComparison = normalizeStringForComparison(backupPair.endDisplay);
+    
+    setGameState({
+      startArticle: backupPair.start,
+      startDisplay: backupPair.startDisplay,
+      endArticle: backupPair.end,
+      endDisplay: backupPair.endDisplay,
+      endArticleForComparison: endArticleForComparison, // Adicionado para comparação
+      clicksLeft: 5,
+      path: [{
+        title: backupPair.start,
+        displayTitle: backupPair.startDisplay,
+        titleForComparison: normalizeStringForComparison(backupPair.startDisplay)
+      }],
+      isComplete: false,
+      showCelebration: false
+    });
+    loadArticle(backupPair.start);
+    setShowMenu(false);
+  } finally {
+    setLoading(false);
+  }
 };
 
 function App() {
@@ -718,56 +806,6 @@ function App() {
     setCurrentArticle("");
   };
 
-  // Initialize game with random pair
-  const startGame = async () => {
-    setLoading(true);
-    try {
-      const pair = await generateValidPair();
-      setGameState({
-        startArticle: pair.start,
-        startDisplay: pair.startDisplay,
-        endArticle: pair.end,
-        endDisplay: pair.endDisplay,
-        clicksLeft: 5,
-        path: [{
-          title: pair.start,
-          displayTitle: pair.startDisplay
-        }],
-        isComplete: false,
-        showCelebration: false
-      });
-      loadArticle(pair.start);
-      setShowMenu(false);
-    } catch (error) {
-      console.error("Erro ao iniciar jogo:", error);
-      // Usar um par de backup em caso de erro
-      const backupPair = {
-        start: "Brasil",
-        startDisplay: "Brasil",
-        end: "Ciência",
-        endDisplay: "Ciência",
-        difficulty: "medium"
-      };
-      setGameState({
-        startArticle: backupPair.start,
-        startDisplay: backupPair.startDisplay,
-        endArticle: backupPair.end,
-        endDisplay: backupPair.endDisplay,
-        clicksLeft: 5,
-        path: [{
-          title: backupPair.start,
-          displayTitle: backupPair.startDisplay
-        }],
-        isComplete: false,
-        showCelebration: false
-      });
-      loadArticle(backupPair.start);
-      setShowMenu(false);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Function to load Wikipedia article content
   const loadArticle = async (title) => {
     setLoading(true);
@@ -840,39 +878,6 @@ function App() {
     });
     
     return div.innerHTML;
-  };
-
-  // Handle link clicks in the article
-  const handleLinkClick = async (event) => {
-    const link = event.target.closest('a[data-wiki-link]');
-    if (!link) return;
-    
-    event.preventDefault();
-    const title = link.getAttribute('data-wiki-link');
-    
-    if (gameState.clicksLeft > 0 && !gameState.isComplete) {
-      // Obter informações do artigo incluindo o displayTitle
-      const articleInfo = await getArticleInfo(title);
-      if (!articleInfo) return;
-      
-      const newPath = [...gameState.path, {
-        title: articleInfo.title,
-        displayTitle: articleInfo.displayTitle
-      }];
-      
-      // Verifica se encontrou o artigo de destino
-      const isComplete = checkArticleMatch(title, gameState.endArticle);
-      
-      setGameState(prev => ({
-        ...prev,
-        clicksLeft: prev.clicksLeft - 1,
-        path: newPath,
-        isComplete,
-        showCelebration: isComplete
-      }));
-      
-      loadArticle(title);
-    }
   };
 
   // Componente para o botão de alternância de tema

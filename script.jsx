@@ -78,7 +78,7 @@ const getWikipediaLinks = async (title) => {
   try {
     const encodedTitle = encodeURIComponent(title);
     const response = await fetch(
-      `https://pt.wikipedia.org/w/api.php?action=query&format=json&origin=*&titles=${encodedTitle}&prop=links&pllimit=500&plnamespace=0`
+      `https://pt.wikipedia.org/w/api.php?action=query&format=json&origin=*&titles=${encodedTitle}&prop=links|info|redirects&pllimit=500&plnamespace=0&redirects&converttitles`
     );
     const data = await response.json();
     
@@ -86,21 +86,27 @@ const getWikipediaLinks = async (title) => {
     
     const pages = data.query.pages;
     const pageId = Object.keys(pages)[0];
+    const page = pages[pageId];
     
-    if (!pages[pageId].links) return [];
+    if (!page || !page.links || pageId === '-1') return [];
     
-    // Filtrar e processar os links
-    const links = await Promise.all(
-      pages[pageId].links
-        .filter(link => !link.title.includes(':') && !link.title.includes('/'))
-        .map(async link => {
-          const info = await getArticleInfo(link.title);
-          return info;
-        })
-    );
+    // Verificar se é um redirecionamento
+    if (page.redirect) return [];
     
-    // Remover nulos e redirecionamentos
-    return links.filter(link => link && link.isValid);
+    // Filtrar links
+    const validLinks = page.links
+      .filter(link => {
+        // Remover links especiais e namespaces
+        if (link.title.includes(':') || link.title.includes('/')) return false;
+        
+        // Remover links para anos e datas (são muito genéricos)
+        const yearPattern = /^[0-9]{1,4}$/;
+        if (yearPattern.test(link.title)) return false;
+        
+        return true;
+      });
+    
+    return validLinks;
   } catch (error) {
     console.error(`Erro ao obter links do artigo "${title}":`, error);
     return [];
@@ -548,10 +554,9 @@ function App() {
   const loadArticle = async (title) => {
     setLoading(true);
     try {
-      // Usando encodeURIComponent para codificar corretamente o título do artigo
       const encodedTitle = encodeURIComponent(title);
       const response = await fetch(
-        `https://pt-br.wikipedia.org/w/api.php?action=parse&page=${encodedTitle}&format=json&origin=*&prop=text|categories|sections`
+        `https://pt.wikipedia.org/w/api.php?action=parse&page=${encodedTitle}&format=json&origin=*&prop=text|categories|sections&redirects`
       );
       const data = await response.json();
       
@@ -559,11 +564,15 @@ function App() {
         throw new Error(`Erro da API Wikipedia: ${data.error.info}`);
       }
       
+      // Verificar se o artigo existe e não é um redirecionamento
       if (data.parse && data.parse.text) {
+        // Verificar se o conteúdo indica que é uma página de redirecionamento
         const content = data.parse.text["*"];
+        if (content.includes('class="redirectText"')) {
+          throw new Error("Este é um redirecionamento");
+        }
         setCurrentArticle(processWikiContent(content));
       } else {
-        // Artigo não encontrado, mostrar erro
         setCurrentArticle(`<div class="wiki-error">
           <h2>Artigo não encontrado</h2>
           <p>O artigo "${title}" não foi encontrado na Wikipedia em português do Brasil.</p>
@@ -575,6 +584,7 @@ function App() {
       setCurrentArticle(`<div class="wiki-error">
         <h2>Erro ao carregar artigo</h2>
         <p>Ocorreu um erro ao carregar "${title}".</p>
+        <p>Se este for um redirecionamento, por favor clique em outro link.</p>
         <p>Detalhes: ${error.message}</p>
       </div>`);
     }

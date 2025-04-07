@@ -124,54 +124,73 @@ const normalizeStringForComparison = (str) => {
   }
 };
 
-// Função para verificar se dois títulos de artigos correspondem
+// Função para verificar se dois títulos de artigos correspondem - versão super flexível
 const checkArticleMatch = (currentArticle, targetArticle) => {
   try {
     // Obter as versões normalizadas dos títulos para comparação
     const current = normalizeStringForComparison(currentArticle);
     const target = normalizeStringForComparison(targetArticle);
     
-    // Verificar correspondência exata após normalização
-    if (current === target) return true;
+    console.log("Comparando artigos:");
+    console.log("- Atual (normalizado):", current);
+    console.log("- Alvo (normalizado):", target);
     
-    // Verificar se um é substring significativa do outro
-    if ((current.includes(target) || target.includes(current)) &&
-        Math.min(current.length, target.length) > 5) {
+    // 1. Verificar correspondência exata após normalização
+    if (current === target) {
+      console.log("✓ Correspondência exata");
       return true;
     }
     
-    // Verificar similaridade com base em tokens comuns
-    const currentTokens = current.split(' ');
-    const targetTokens = target.split(' ');
+    // 2. Verificar se um é substring do outro (para casos como "Via Láctea" vs "Via Lactea")
+    if ((current.includes(target) || target.includes(current)) &&
+        Math.min(current.length, target.length) > 3) {
+      console.log("✓ Substring significativa encontrada");
+      return true;
+    }
+    
+    // 3. Verificar palavras em comum
+    const currentWords = current.split(' ');
+    const targetWords = target.split(' ');
     
     // Se ambos têm múltiplas palavras, verificar se compartilham palavras significativas
-    if (currentTokens.length > 1 && targetTokens.length > 1) {
-      const commonTokens = currentTokens.filter(token => 
-        token.length > 3 && targetTokens.includes(token)
+    if (currentWords.length > 1 && targetWords.length > 1) {
+      const commonWords = currentWords.filter(word => 
+        word.length > 3 && targetWords.includes(word)
       );
       
-      if (commonTokens.length > 0) {
+      if (commonWords.length > 0 && 
+          commonWords.length >= Math.min(currentWords.length, targetWords.length) / 2) {
+        console.log("✓ Palavras significativas em comum:", commonWords);
         return true;
       }
     }
     
-    // Verificar algumas variações comuns específicas
+    // 4. Verificar o caso específico de "Via Láctea" vs "Via Lactea"
+    const viaLacteaVariations = ['via lactea', 'galaxia via lactea', 'via láctea', 'galaxia via láctea'];
+    if (viaLacteaVariations.includes(current) && viaLacteaVariations.includes(target)) {
+      console.log("✓ Caso específico de Via Láctea");
+      return true;
+    }
+    
+    // 5. Verificar algumas variações comuns específicas
     const variations = {
+      'via lactea': ['via láctea', 'galaxia via lactea', 'nossa galaxia'],
+      'galaxia': ['galaxias', 'via lactea', 'via láctea'],
       'crimeia': ['crimea', 'crimeia'],
       'uniao sovietica': ['urss', 'uniao sovietica'],
       'estados unidos': ['eua', 'usa', 'america'],
       'america': ['estados unidos', 'eua'],
       'brasil': ['republica federativa do brasil'],
-      'franca': ['republica francesa'],
+      'franca': ['republica francesa', 'frança'],
       'reino unido': ['gra bretanha', 'inglaterra'],
       'alemanha': ['republica federal da alemanha'],
-      'japao': ['imperio do japao'],
+      'japao': ['imperio do japao', 'japão'],
       'china': ['republica popular da china'],
-      'russia': ['federacao russa'],
-      'exercito': ['forcas armadas'],
+      'russia': ['federacao russa', 'rússia'],
+      'exercito': ['forcas armadas', 'exército'],
       'futebol': ['soccer', 'calcio'],
-      'historia': ['cronologia'],
-      'geografia': ['geopolitica'],
+      'historia': ['cronologia', 'história'],
+      'geografia': ['geopolitica', 'geografia'],
       'primeira guerra mundial': ['grande guerra'],
       'segunda guerra mundial': ['guerra mundial']
     };
@@ -180,11 +199,12 @@ const checkArticleMatch = (currentArticle, targetArticle) => {
     for (const [base, aliases] of Object.entries(variations)) {
       if ((current.includes(base) && aliases.some(a => target.includes(a))) ||
           (target.includes(base) && aliases.some(a => current.includes(a)))) {
+        console.log("✓ Variação específica encontrada");
         return true;
       }
     }
     
-    // Calcular similaridade baseada em caracteres comuns
+    // 6. Calcular similaridade baseada em caracteres comuns
     const calculateSimilarity = (s1, s2) => {
       let commonChars = 0;
       const minLength = Math.min(s1.length, s2.length);
@@ -204,9 +224,11 @@ const checkArticleMatch = (currentArticle, targetArticle) => {
     // Se a similaridade é alta o suficiente
     const similarity = calculateSimilarity(current, target);
     if (similarity > 0.8) {
+      console.log("✓ Alta similaridade:", similarity);
       return true;
     }
     
+    console.log("✗ Nenhuma correspondência encontrada");
     return false;
   } catch (e) {
     console.error("Erro na comparação de artigos:", e);

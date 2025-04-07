@@ -1,3 +1,846 @@
+<<<<<<< HEAD
+:root {
+  /* Cores principais */
+  --color-primary: #4361ee;
+  --color-primary-light: #4895ef;
+  --color-primary-dark: #3b50ce;
+  --color-secondary: #7209b7;
+  --color-secondary-light: #b5179e;
+  --color-secondary-dark: #560a8a;
+  
+  /* Tons neutros */
+  --color-background: #f8f9fa;
+  --color-surface: #ffffff;
+  --color-text: #1d3557;
+  --color-text-secondary: #495057;
+  --color-border: #e9ecef;
+  --color-divider: #dee2e6;
+  
+  /* Estados e feedback */
+  --color-success: #38b000;
+  --color-warning: #ff9e00;
+  --color-error: #ff0054;
+  --color-info: #4cc9f0;
+  
+  /* Sombras */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+  
+  /* Arredondamento */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  
+  /* Espaçamento */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  
+  /* Tipografia */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", "Roboto Mono", Menlo, Consolas, monospace;
+  --font-size-xs: 0.75rem;  /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-md: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem;  /* 20px */
+  --font-size-2xl: 1.5rem;  /* 24px */
+  --font-size-3xl: 2rem;    /* 32px */
+  
+  /* Transition */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+  
+  /* Z-index */
+  --z-modal: 1000;
+  --z-popup: 900;
+  --z-header: 800;
+  --z-tooltip: 700;
+}
+
+/* Tema escuro */
+.dark-theme {
+  --color-primary: #4cc9f0;
+  --color-primary-light: #4895ef;
+  --color-primary-dark: #3a0ca3;
+  --color-secondary: #f72585;
+  --color-secondary-light: #b5179e;
+  --color-secondary-dark: #7209b7;
+  
+  --color-background: #121212;
+  --color-surface: #1e1e1e;
+  --color-text: #f8f9fa;
+  --color-text-secondary: #adb5bd;
+  --color-border: #2e2e2e;
+  --color-divider: #2e2e2e;
+  
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3);
+}
+
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Variáveis de cores e temas */
+:root {
+  --primary-color: #4361ee;
+  --secondary-color: #7209b7;
+  --text-color: #2d3748;
+  --bg-color: #f7fafc;
+  --card-bg: #ffffff;
+  --border-color: #e2e8f0;
+  --success-color: #48bb78;
+  --warning-color: #ed8936;
+  --link-color: #2b6cb0;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Tema escuro */
+.dark-theme {
+  --text-color: #e2e8f0;
+  --bg-color: #1a202c;
+  --card-bg: #2d3748;
+  --border-color: #4a5568;
+  --link-color: #63b3ed;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Reset e bases */
+html, body {
+  height: 100%;
+  font-family: var(--font-sans);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.5;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Utilidades */
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
+}
+
+.max-w-md { max-width: 28rem; }
+.max-w-2xl { max-width: 42rem; }
+.max-w-5xl { max-width: 64rem; }
+
+.py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+.py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+
+.space-y-4 > * + * { margin-top: 1rem; }
+
+.text-center { text-align: center; }
+.text-lg { font-size: var(--font-size-lg); }
+.text-2xl { font-size: var(--font-size-2xl); }
+.font-medium { font-weight: 500; }
+.font-bold { font-weight: 700; }
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-between: space-between; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-nowrap { flex-wrap: nowrap; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-8 { gap: 2rem; }
+
+.w-6 { width: 1.5rem; }
+.h-6 { height: 1.5rem; }
+.w-full { width: 100%; }
+.max-w-sm { max-width: 24rem; }
+.min-w-max { min-width: max-content; }
+
+.rounded-full { border-radius: 9999px; }
+
+.inline-flex { display: inline-flex; }
+
+.mt-4 { margin-top: 1rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+
+.text-primary { color: var(--primary-color); }
+.text-secondary { color: var(--secondary-color); }
+.text-warning { color: var(--warning-color); }
+.text-gray-700 { color: var(--color-text-secondary); }
+.text-primary-600 { color: var(--color-primary-dark); }
+.text-yellow-500 { color: #f59e0b; }
+
+.bg-primary-100 { background-color: rgba(67, 97, 238, 0.1); }
+
+.opacity-0 { opacity: 0; }
+
+/* Componentes */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 1rem;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.3s, background-color 0.3s;
+}
+
+.menu-card {
+  background-color: var(--card-bg);
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+  padding: 2rem;
+  text-align: center;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-color);
+}
+
+.btn-plain {
+  background: none;
+  padding: 0.5rem;
+}
+
+.btn-plain:hover {
+  background-color: var(--bg-color);
+  border-radius: 0.5rem;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-large {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: var(--font-size-sm);
+}
+
+.fancy-title {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  margin-bottom: 1rem;
+}
+
+.wiki-content {
+  padding: 1.5rem;
+  margin-top: 1rem;
+  overflow-x: auto;
+  min-height: 300px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.wiki-content a[data-wiki-link] {
+  color: var(--link-color);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.wiki-content a[data-wiki-link]:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+.wiki-content h1, .wiki-content h2, .wiki-content h3 {
+  margin-bottom: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.wiki-content h1:first-child, .wiki-content h2:first-child, .wiki-content h3:first-child {
+  margin-top: 0;
+}
+
+.wiki-content p {
+  margin-bottom: 1rem;
+}
+
+.wiki-content table {
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.wiki-content table th,
+.wiki-content table td {
+  border: 1px solid var(--color-border);
+  padding: 0.5rem;
+}
+
+.wiki-content table th {
+  background-color: var(--color-divider);
+  text-align: left;
+}
+
+.wiki-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.wiki-content .infobox {
+  float: right;
+  clear: right;
+  margin: 0.5rem 0 1rem 1rem;
+  max-width: 22rem;
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem;
+  font-size: var(--font-size-sm);
+}
+
+.wiki-error {
+  padding: 1rem;
+  background-color: rgba(255, 0, 84, 0.1);
+  border-left: 4px solid var(--color-error);
+  border-radius: var(--radius-sm);
+}
+
+/* Contador de cliques destacado */
+.clicks-counter {
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 0.75rem;
+  padding: 0.25rem;
+  box-shadow: var(--shadow-md);
+  animation: pulse 2s infinite;
+}
+
+.clicks-counter-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 2px dashed rgba(255, 255, 255, 0.5);
+  border-radius: 0.5rem;
+}
+
+.clicks-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  min-width: 2.5rem;
+  text-align: center;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.clicks-label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+/* Notificação de redirecionamento */
+.wiki-redirect-notice {
+  background-color: #fff3cd;
+  border-left: 4px solid #ffc107;
+  color: #856404;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: var(--radius-sm);
+}
+
+.wiki-redirect-notice h2 {
+  margin: 0 0 0.5rem 0;
+  color: #856404;
+  font-size: 1.25rem;
+}
+
+.wiki-redirect-notice p {
+  margin: 0;
+}
+
+/* Tema escuro para os novos elementos */
+.dark-theme .clicks-counter {
+  background-color: var(--color-primary-dark);
+}
+
+.dark-theme .wiki-redirect-notice {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #f9d71c;
+  border-left-color: #f9d71c;
+}
+
+.dark-theme .wiki-redirect-notice h2 {
+  color: #f9d71c;
+}
+
+.game-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--bg-color);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+
+.path-container {
+  background-color: var(--bg-color);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+
+.path-item {
+  background-color: var(--card-bg);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  animation: slideUp 0.3s ease-out;
+  font-weight: 500;
+}
+
+.path-arrow {
+  color: var(--text-color);
+  opacity: 0.5;
+}
+
+.game-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.badge {
+  background-color: var(--bg-color);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.game-alert {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.game-alert-success {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.game-alert-warning {
+  background-color: var(--warning-color);
+  color: white;
+}
+
+.trophy-celebration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s infinite;
+}
+
+.victory-text {
+  font-size: var(--font-size-lg);
+}
+
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem;
+}
+
+.loader-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+  animation: bounce 0.5s alternate infinite;
+}
+
+.loader-dot:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.loader-dot:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
+.theme-switch {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+}
+
+.theme-switch-button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-switch-button:hover {
+  background-color: var(--bg-color);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+}
+
+.modal {
+  background-color: var(--card-bg);
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 90%;
+  width: 32rem;
+  box-shadow: var(--shadow);
+  animation: entrance 0.3s ease-out;
+}
+
+.modal-header {
+  margin-bottom: 1.5rem;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.modal-body {
+  padding: 0.5rem 1.5rem 1.5rem;
+}
+
+.modal-footer {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem 1.5rem;
+  background-color: var(--color-background);
+  border-bottom-left-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+  border-top: 1px solid var(--color-border);
+}
+
+/* Remova completamente as classes do contador */
+.creator-info {
+  color: var(--text-color);
+  opacity: 0.8;
+  font-size: 0.875rem;
+  transition: opacity 0.3s;
+}
+
+.creator-info:hover {
+  opacity: 1;
+}
+
+.creator-email {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.creator-email:hover {
+  text-decoration: underline;
+}
+
+/* Celebration animations */
+.celebration-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.confetti {
+  position: absolute;
+  animation: fall 3s linear forwards;
+}
+
+.sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background-color: #ffd700;
+  border-radius: 50%;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.debug-panel {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background-color: var(--card-bg);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow);
+  max-width: 80vw;
+  max-height: 50vh;
+  overflow: auto;
+  z-index: 1000;
+}
+
+.debug-panel h3 {
+  margin-bottom: 0.5rem;
+  color: var(--color-primary);
+}
+
+.debug-panel pre {
+  white-space: pre-wrap;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  margin-bottom: 1rem;
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes bounce {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-0.5rem);
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+@keyframes falling {
+  from {
+    transform: translateY(-100px) rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.5);
+    opacity: 0.5;
+  }
+}
+
+@keyframes entrance {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes titleEntrance {
+  0% { transform: translateY(-30px); opacity: 0; filter: blur(5px); }
+  100% { transform: translateY(0); opacity: 1; filter: blur(0); }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Animações de entrada para a home */
+.animate-entrance {
+  animation: entrance 0.6s ease-out;
+}
+
+.animate-title {
+  animation: titleEntrance 0.8s cubic-bezier(0.11, 0, 0.5, 0);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out;
+}
+
+.animate-slide-in {
+  opacity: 0;
+  animation: slideIn 0.5s forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s forwards;
+}
+
+.animate-wiggle {
+  animation: wiggle 1s ease-in-out;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .fancy-title {
+    font-size: 2.5rem;
+  }
+  
+  .game-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .wiki-content {
+    max-height: 60vh;
+  }
+  
+  .wiki-content .infobox {
+    float: none;
+    margin: 1rem 0;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .fancy-title {
+    font-size: 2rem;
+  }
+}
+
+/* Removidas todas as referências ao contador de combinações */
+=======
 :root {
   /* Cores principais */
   --color-primary: #4361ee;
@@ -859,3 +1702,4 @@ button {
     padding: 0.75rem 1.5rem;
   }
 }
+>>>>>>> d0d6a68cdf990b7c3c89d75e221459e5c3772d17
